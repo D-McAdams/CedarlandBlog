@@ -20,6 +20,6 @@
 </html>
 
 ## Recent Posts
-<i>Note - Historical posts are categorized in the left-hand navigation menu. Mobile users: click the hamburger button to expand.</i>
+<i>Note - Historical posts are categorized in the left navigation menu. Mobile users: click the hamburger button to expand.</i>
 * One
 * Two

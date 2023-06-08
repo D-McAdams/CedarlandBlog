@@ -1,4 +1,4 @@
-## No, it's not about the tree..
+## It's not about the tree..
 <html>
 <table style="border-collapse: collapse; padding: 0; margin: 0;">
         <tr>
@@ -12,7 +12,7 @@
                 I'm Darin McAdams, Sr. Principal Engineer in Amazon Web Services and member of the team that originally built Cedar.
 		</p>
 		<p>
-		This is my personal blog covering topics such as the language design, usage patterns, community activity, and various other curiosities. All opinions are my own.
+		This is my personal blog covering topics such as the Cedar language design, usage patterns, community activity, and various other curiosities. All opinions are my own.
                 </p>
             </td>
         </tr>

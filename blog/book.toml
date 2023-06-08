@@ -1,0 +1,6 @@
+[book]
+authors = ["Darin McAdams"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Cedarland Blog"

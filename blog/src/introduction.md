@@ -12,16 +12,14 @@
                 I'm Darin McAdams, Sr. Principal Engineer in Amazon Web Services and member of the team that originally built Cedar.
 		</p>
 		<p>
-		This is my personal blog covering topics such as the language design, usage patterns (and anti-patterns!), community activity, and various other curiosities. All opinions are my own.
+		This is my personal blog covering topics such as the language design, usage patterns, community activity, and various other curiosities. All opinions are my own.
                 </p>
-		<p>
-		Historical posts are categorized in the left-hand navigation menu. <i> (Mobile users: click the hamburger button to expand.) </i>
-		</p>
             </td>
         </tr>
 </table>
 </html>
 
 ## Recent Posts
+<i>Note - Historical posts are categorized in the left-hand navigation menu. Mobile users: click the hamburger button to expand.</i>
 * One
 * Two

@@ -1,6 +1,7 @@
-[About](./introduction.md)
+[About](./about.md)
 
-## Design Patterns
-- [Something](./introduction.md)
-    - [Foo](./introduction.md)
-    - [Bar](./introduction.md)
+## Design History
+
+- [Design History](./design/introduction/content.md)
+    - [Why was Cedar created?](./design/why-cedar/content.md)
+

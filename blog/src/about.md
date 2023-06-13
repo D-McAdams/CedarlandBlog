@@ -12,7 +12,7 @@
                 I'm Darin McAdams, Sr. Principal Engineer in Amazon Web Services and member of the team that originally built Cedar.
 		</p>
 		<p>
-		This is my personal blog covering topics such as the Cedar language design, usage patterns, community activity, and various other curiosities. All opinions are my own.
+		This is my personal blog covering Cedar topics such as the language design, usage patterns, and various other curiosities. All opinions are my own.
                 </p>
             </td>
         </tr>
@@ -20,6 +20,4 @@
 </html>
 
 ## Recent Posts
-<i>Note - Historical posts are categorized in the left navigation menu. Mobile users: click the hamburger button to expand.</i>
-* One
-* Two
+* [June 12, 2023 - Why was Cedar created?](./design/why-cedar/content.md)

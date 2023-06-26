@@ -11,3 +11,13 @@ Floating-point can lead to other quirks as well. For example `262144.0 + 0.01 = 
 Floating-point is a well-defined and a very useful format in many other programming contexts. We elected not to include it in Cedar not because it’s a “bad” format, but because we think it’s a bad idea to use this kind of arithmetic for authorization decisions.
 
 Because of this, Cedar also does not include mathematical operators such as division that return floating-point values. For example, the operation `1 / 3` would necessitate a floating-point value for the result. Cedar also does not allow multiplication with Decimal types, such as `1 * decimal("0.3")`, as this would lead to the same outcome.
+
+For additional information on the Cedar `Decimal` type and other operators, see the [documentation](https://docs.cedarpolicy.com/syntax-operators.html). `Decimal` supports the following operations:
+```
+decimal("0.3") == decimal("0.3")                //true
+decimal("0.3") != decimal("0.4321")             //true
+decimal("0.3").lessThan("922337203685477.5807") //true
+decimal("0.3").lessThanOrEqual("0.300")         //true
+decimal("0.3").greaterThan("-4.82")             //true
+decimal("0.3").greaterThanOrEqual("00.30")      //true
+```

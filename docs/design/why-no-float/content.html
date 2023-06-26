@@ -151,6 +151,14 @@
 <p>Floating-point can lead to other quirks as well. For example <code>262144.0 + 0.01 = 262144.0</code>. One number plus another number equals the same number. You can see a similar effect in Javascript by taking the number 16128500101100052000 and adding 1; you get the same number back. (Javascript number are always 64-bit floating-point). This behavior occurs when adding large and small numbers. An <a href="https://jvns.ca/blog/2023/01/13/examples-of-floating-point-problems/">excellent blog post</a> describes these quirks of floating-point and real world impacts. </p>
 <p>Floating-point is a well-defined and a very useful format in many other programming contexts. We elected not to include it in Cedar not because it’s a “bad” format, but because we think it’s a bad idea to use this kind of arithmetic for authorization decisions.</p>
 <p>Because of this, Cedar also does not include mathematical operators such as division that return floating-point values. For example, the operation <code>1 / 3</code> would necessitate a floating-point value for the result. Cedar also does not allow multiplication with Decimal types, such as <code>1 * decimal(&quot;0.3&quot;)</code>, as this would lead to the same outcome.</p>
+<p>For additional information on the Cedar <code>Decimal</code> type and other operators, see the <a href="https://docs.cedarpolicy.com/syntax-operators.html">documentation</a>. <code>Decimal</code> supports the following operations:</p>
+<pre><code>decimal(&quot;0.3&quot;) == decimal(&quot;0.3&quot;)                //true
+decimal(&quot;0.3&quot;) != decimal(&quot;0.4321&quot;)             //true
+decimal(&quot;0.3&quot;).lessThan(&quot;922337203685477.5807&quot;) //true
+decimal(&quot;0.3&quot;).lessThanOrEqual(&quot;0.300&quot;)         //true
+decimal(&quot;0.3&quot;).greaterThan(&quot;-4.82&quot;)             //true
+decimal(&quot;0.3&quot;).greaterThanOrEqual(&quot;00.30&quot;)      //true
+</code></pre>
 
                     </main>
 

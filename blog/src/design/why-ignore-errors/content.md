@@ -50,7 +50,7 @@ permit (
 
 In this example, if a missing value of `principal.jobRole` was treated as a `nil` type, then the expression would surprisingly permit access. This is because `nil == "external_contractor"` would evaluate to false. But, since this is negated, the false becomes true.
 
-As a result, anyone with an undefined value of `jobRole` gets access to the resource. Is this desired behavior? Is it undesired? The answer is indeterminate and therefore Cedar errors. Only the policy author can resolve the ambiguity. To fix the error in this example, the policy author can amend the conditions to test if the attribute exists before using it.
+As a result, anyone with an undefined value of `jobRole` gets access to the resource. Is this desired behavior? Is it undesired? The answer is indeterminate and therefore Cedar errors. Only the policy author can resolve the ambiguity. If the author had used the [Cedar validator](https://docs.cedarpolicy.com/validation.html), this policy would have been flagged as a potential error. To fix the error, the policy author can amend the conditions to test if the optional attribute exists before using it.
 
 ```
 // Permit anyone to read the folder UNLESS their job role is "external_contractor".
@@ -66,9 +66,9 @@ permit (
 
 ###  Why does Cedar ignore policies that error?
 
-When a policy errors, Cedar could halt and default the authorization decisiont to `Deny` instead of ignoring the error and proceeding to evaluate other policies. The reason it doesn't halt is for the safety of applications using Cedar. Imagine a system with 100 policies that are running successfully, and then someone adds policy number 101 which contains an error. If Cedar halted on error and emitted a default-deny decision for the entire batch of policies, then 100% of all authorization decisions in the system could begin failing, simply because someone introduced an error in one new policy.
+When a policy errors, Cedar could halt and default the authorization decision to `Deny` instead of ignoring the error and proceeding to evaluate other policies. The reason it doesn't halt is for the safety of applications using Cedar. Imagine a system with 100 policies that are running successfully, and then someone adds policy number 101 which contains an error. If Cedar halted on error and emitted a default-deny decision for the entire batch of policies, then 100% of all authorization decisions in the system could begin failing, simply because someone introduced an error in one new policy.
 
-If this behavior is worrisome to you, note that the Cedar evaluator returns diagnostics that indicate if any policies emitted errors. System owners may use this field to monitor for errors or even choose to fail-closed on error, if desired.
+If ignore-on-error behavior is worrisome to you, note that the Cedar evaluator returns diagnostics that indicate if any policies emitted errors. System owners may use this field to monitor for errors or even choose to fail-closed on error, if desired.
 
 ###  What about forbid statements? 
 

@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="about.html">About</a></li><li class="chapter-item expanded "><a href="design/introduction/content.html"><strong aria-hidden="true">1.</strong> Design History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design/why-cedar/content.html"><strong aria-hidden="true">1.1.</strong> Why was Cedar created?</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="about.html">About</a></li><li class="chapter-item expanded "><a href="design/introduction/content.html"><strong aria-hidden="true">1.</strong> Design History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design/why-cedar/content.html"><strong aria-hidden="true">1.1.</strong> Why was Cedar created?</a></li><li class="chapter-item expanded "><a href="design/why-no-regex/content.html"><strong aria-hidden="true">1.2.</strong> Why doesn't Cedar have regexes and string operators?</a></li><li class="chapter-item expanded "><a href="design/why-no-float/content.html"><strong aria-hidden="true">1.3.</strong> Why doesn't Cedar support floating point numbers?</a></li><li class="chapter-item expanded "><a href="design/why-ignore-errors/content.html"><strong aria-hidden="true">1.4.</strong> Why does Cedar ignore policies that error?</a></li><li class="chapter-item expanded "><a href="design/why-semicolon/content.html"><strong aria-hidden="true">1.5.</strong> Why do Cedar policies end with a semi-colon?</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -156,10 +156,10 @@
 	        <p>
 		This is a blog about the <strong><a href="https://www.cedarpolicy.com/">Cedar Policy Language</a></strong>.
                 <p>
-                I'm Darin McAdams, Sr. Principal Engineer in Amazon Web Services and member of the team that originally built Cedar.
+                I'm Darin McAdams, Sr. Principal Engineer in Amazon Web Services and part of the team that originally built Cedar.
 		</p>
 		<p>
-		This is my personal blog covering Cedar topics such as the language design, usage patterns, and various other curiosities. All opinions are my own.
+		This is my personal blog covering Cedar topics such as the language design, usage patterns, and various other curiosities. All opinions are my own. All intelligent statements probably come from my teammates.
                 </p>
             </td>
         </tr>
@@ -168,8 +168,13 @@
 <h2 id="recent-posts"><a class="header" href="#recent-posts">Recent Posts</a></h2>
 <ul>
 <li><a href="./design/why-cedar/content.html">June 12, 2023 - Why was Cedar created?</a></li>
+<li><a href="./design/why-no-regex/content.html">June 25, 2023 - Why doesn't Cedar have regexes and string operators?</a></li>
+<li><a href="./design/why-no-float/content.html">June 25, 2023 - Why doesn't Cedar support floating-point numbers?</a></li>
+<li><a href="./design/why-ignore-errors/content.html">June 25, 2023 - Why does Cedar ignore policies that error?</a></li>
+<li><a href="./design/why-semicolon/content.html">June 25, 2023 - Why do Cedar policies end with a semi-colon?</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="design-history"><a class="header" href="#design-history">Design History</a></h1>
+<p>These blog posts share details about the language design and answer frequently asked questions.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="why-was-cedar-created"><a class="header" href="#why-was-cedar-created">Why was Cedar created?</a></h2>
 <p>When Cedar launched in 2022, one of the common questions we received was <em>&quot;Why?&quot;</em>. After all, there was no shortage of existing authorization grammars at the time. Creating another was not the initial intent. Yet, as we evaluated options, we struggled to find one that met our needs. This eventually informed the decision to create a new language and established its guiding principles.</p>
 <p>To frame the context, Cedar was originally developed in AWS to support services such as <a href="https://aws.amazon.com/verified-permissions/">Amazon Verified Permissions</a> and <a href="https://aws.amazon.com/verified-access/">AWS Verified Access</a>. Like most cloud offerings, our services typically share common characteristics which we wanted to hold true for authorization solutions, as well. Cloud services tend to be multi-tenant and seek to provide a high quality of service for all customers. If an individual authorization rule can take excessive time to run, or consume excessive system resources, this works against the quality of service goals for customers and was a behavior we sought to avoid in an authorization grammar. Cloud services also run at high scale and callers want them to behave flawlessly, making efficiency and correctness an important consideration. In terms of security, our authorization rules would be written by external customers and evaluated by the cloud service, making policies a form of untrusted code that needed to be evaluated safely. Lastly, we wanted the policy language to be understandable by a broad range of customers, and to allow for robust analysis of existing rules and the potential impacts of changing them.</p>
@@ -204,6 +209,150 @@
     <img src="design/why-cedar/./presentation-screenshot.png" alt="Screenshot of Cedar Presentation"/>
   </a>
 </p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="why-doesnt-cedar-have-regexes-or-string-formatting-operators"><a class="header" href="#why-doesnt-cedar-have-regexes-or-string-formatting-operators">Why doesn't Cedar have regexes or string formatting operators?</a></h2>
+<p>Cedar's design methodology is underpinned by a philosophy of safety, as described in <a href="design/why-no-regex/../why-cedar/content.html">&quot;Why was Cedar created?&quot;</a>. Safety considerations are wide-ranging and can include factors such as preventing excessive resource consumption, preserving the ability to analyze polices for correctness, or simply guiding policy authors away from common logical mistakes.</p>
+<p>Regular expressions and string formatting operators were intentionally omitted from the language because they work against these safety goals. This blog post describes why they can be dangerous and alternative approaches to writing policies without them.</p>
+<h3 id="these-operators-are-error-prone-and-impolite"><a class="header" href="#these-operators-are-error-prone-and-impolite">These operators are error-prone (and impolite)</a></h3>
+<p>As an example, consider an authorization policy that wants to make decisions based on a URL and query string received by a web application. A naïve way to do this is to pass the entire URL as a string into the context of the policy evaluator:</p>
+<pre><code>&quot;context&quot;: {
+    &quot;url&quot;: &quot;https://example.co/path?queryParam1=hello&amp;queryParam2=world&quot;
+}
+</code></pre>
+<p>If the policy author wanted to make decisions based on subcomponents of the URL, such as the host name or particular query parameters, the policy author might need to apply regexes to match the subcomponents. They would also need to use string formatting operators to normalize the values appropriately. Normalization is important because fields such as <code>host</code> are case-insensitive, and a malicious actor could potentially subvert the following authorization rule by simply sending an HTTP request with different capitalization.</p>
+<pre><code>forbid (principal, action, resource) 
+unless {
+    // Uh oh, someone could bypass this rule by using &quot;EXAMPLE.CO&quot;
+    context.url.matches(&quot;^http(s?)://example.co/&quot;)
+};
+</code></pre>
+<p>In the example above, we might get lucky if the web server had already normalized the host name, or the policy author remembered to do so. But, what about the query parameter values. Are those case-insensitive or not? Do they have other normalization requirements? And, if so, how would the policy author know? These are application-specific details.</p>
+<pre><code>forbid (principal, action, resource)
+unless {
+    // Should this also match &quot;HELLO&quot; or &quot;Hello&quot;?
+    context.url.matches(&quot;[&amp;\?]queryParam1=hello[&amp;\b]&quot;)
+};
+</code></pre>
+<p>Shifting this burden onto policy authors who may not deeply understand the application details is error-prone. It is also impolite and wasteful, since many different policy authors are bearing the burden of implementing the potentially complex logic. Cedar's philosophy is that application owners should strive to format and normalize data before passing it into the authorization evaluator. This keeps the logic with the owners who have the most domain expertise, and centralizes it in one location so it can benefit all policy authors.</p>
+<p>From this perspective, the URL information could be passed into the evaluator in a pre-normalized format such as the following:</p>
+<pre><code>&quot;context&quot;: {
+    &quot;url&quot;: {
+        &quot;transport&quot;: &quot;https&quot;,
+        &quot;host&quot;: &quot;example.co&quot;,
+        &quot;path&quot;: &quot;/path&quot;,
+        &quot;queryParams&quot; {
+            &quot;queryParam1&quot;: &quot;hello&quot;,
+            &quot;queryParam2&quot;: &quot;world&quot;
+        }
+    }
+}
+</code></pre>
+<p>And a policy author could express rules such as the following:</p>
+<pre><code>forbid (principal, action, resource)
+unless {
+    context.url.host == &quot;example.co&quot;
+};
+</code></pre>
+<p>Another reason that regular expressions are error-prone is because of human error. To provide a real life example shared with me by a teammate, a policy author (in a non-Cedar system) wanted to write a rule that allowed anyone in the <em>&quot;admin&quot;</em> group to have super-administrator privileges in an application. This was done by examining a user's list of groups and testing against the regex <code>/admin/</code>. The mistake was not including the word-boundary conditions in the regex, such that this rule accidentally matched the group <em>&quot;administrative-assistants&quot;</em> and theoretically, I guess, the <em>&quot;badminton-club&quot;</em>. The administrative assistants discovered this access and found it quite useful in getting their job done.</p>
+<p>Regular expressions and string formatting operations are powerful features that are useful in many programming environments. However, in authorization rules that protect access to critical resources, Cedar takes the perspective that simple, safe, auditable rules are preferrable over unbounded flexibility.</p>
+<h3 id="these-operators-are-subject-to-runtime-risks"><a class="header" href="#these-operators-are-subject-to-runtime-risks">These operators are subject to runtime risks</a></h3>
+<p>Regexes and string formatting operations carry runtime risks, as well. Regexes are subject to poor performance characteristics, including worst-case scenarios such as <a href="https://www.google.com/search?q=regex+catastrophic+backtracking+ddos">catastrophic backtracking</a>. String formatting operations can also be abused. To provide an example, consider an operator that concatenates two strings and emits a new string.</p>
+<pre><code>newString = concat(string1,string2)
+</code></pre>
+<p>Presuming the input strings are well-bounded in size, this operator is safe when used once. But, what happens if string concatenations are nested?</p>
+<pre><code>concat( concat(x,x), concat(x,x))
+</code></pre>
+<p>If <code>x=&quot;hello&quot;</code>, this concatenates the string <code>&quot;hello&quot;</code> repeatedly</p>
+<pre><code>hello
+hellohelllo
+hellohellohellohello
+</code></pre>
+<p>A malicious policy author could push this to an extreme:</p>
+<pre><code>concat( concat( concat( concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))), concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x)))), concat( concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))), concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))))), concat( concat( concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))), concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x)))), concat( concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))), concat( concat( concat(x,x), concat(x,x)), concat(concat(x,x), concat(x,x))))))
+</code></pre>
+<p>Due to the power of exponential growth, it would take only 40 repetitions of concatenation to transform the word &quot;hello&quot; into a 5 terabyte string that exceeds the available memory on nearly all classes of modern, general purpose web servers. To provide bounded runtime latencies, an authorization engine would need to guard against excessive memory allocation and fail at runtime. This requires a degree of guesswork about how much memory is &quot;too much&quot;, with a risk of that choice being either too high or too low for someone's legitimate situation.</p>
+<h3 id="these-operators-are-not-analyzable"><a class="header" href="#these-operators-are-not-analyzable">These operators are not analyzable</a></h3>
+<p>As described in <a href="design/why-no-regex/../why-cedar/content.html">Why was Cedar created?</a>, the language was built using verification-guided development and designed for automated reasoning. These techniques provide two benefits: they give a high-degree of confidence that Cedar is implemented correctly (i.e. bug free), and they also allow analyses in order to give you confidence that the policies you write in Cedar are correct.</p>
+<p>Regexes and many string formatting operators are not amenable to these formal reasoning techniques. As a result, these operators simultaneously increase the likelihood of end-user mistakes when writing policies, while at the same time lessoning Cedar's ability to alert users of these mistakes. </p>
+<h3 id="alternative-approaches"><a class="header" href="#alternative-approaches">Alternative Approaches</a></h3>
+<p>As mentioned earlier, the most common approach is to pre-format data before passing it into the authorization evaluator, thereby freeing policy authors from the need for regular expressions and string formatting operators.</p>
+<p>When this is insufficient, the Cedar team is interested in hearing the requirements. (You can reach the community on the <a href="https://communityinviter.com/apps/cedar-policy/cedar-policy-language">Cedar Slack channel</a>.) Although Cedar is strict in terms of safety, it is also pragmatically motivated to solve real-world scenarios. Quite often, alternative approaches can be found that address requirements while adhering to safety goals. For example, <strong>Cedar includes a <code>like</code> operator with the wildcard character <code>*</code></strong>, which solves many situations that would otherwise require regexes. Cedar also supports extended datatypes for fields such as <a href="https://docs.cedarpolicy.com/syntax-datatypes.html#ipaddr">IP Address</a>, with built in validation and helpful operators that can be used policy expressions. Additional extended datatypes can be introduced if they have broad applicability.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="why-doesnt-cedar-support-floating-point-numbers"><a class="header" href="#why-doesnt-cedar-support-floating-point-numbers">Why doesn't Cedar support floating point numbers?</a></h2>
+<p>Sometimes, it's necessary to write an authorization rule against numbers that contain decimal parts. For example, you may want to check if a currency field is greater than <code>&quot;1.99&quot;</code>, or compare the output from an ML-based risk scoring system which emits values like <code>&quot;0.9234&quot;</code>. <strong>Cedar supports this using the <a href="https://docs.cedarpolicy.com/syntax-datatypes.html#decimal">Decimal type</a></strong> with a fixed precision, where the maximum number of digits after the decimal is four. </p>
+<p>In many other programming environments, there is an alternative representation of numbers known as <a href="https://en.wikipedia.org/wiki/Floating-point_arithmetic">floating-point</a> which allows for bigger or smaller values with different degrees of precision. For example, a floating point number might approximate the value of pi with a sequence of digits such as <code>&quot;3.141592653589793…&quot;</code> up to the maximum size allowed by the data type, often 64 bits or 15 decimal digits.</p>
+<p>Cedar does not support floating-point numbers. The reason is because floating-point numbers, by their nature, are  imprecise, and imprecision is not a desirable property of an authorization system. To illustrate this point, consider the following test: 0.1 + 0.2 == 0.3. This appears that it should evaluate to true. But, in most programming languages, it doesn't. <a href="https://0.30000000000000004.com/">This blog post</a> documents the result of the operation in a variety of different programming languages. The reason this occurs is because fractions such as <code>1/10</code> and <code>1/20</code> do not have a precise binary representation. Floating-point arithmetic approximates these values with a limited degree of precision.</p>
+<p>Floating-point can lead to other quirks as well. For example <code>262144.0 + 0.01 = 262144.0</code>. One number plus another number equals the same number. You can see a similar effect in Javascript by taking the number 16128500101100052000 and adding 1; you get the same number back. (Javascript number are always 64-bit floating-point). This behavior occurs when adding large and small numbers. An <a href="https://jvns.ca/blog/2023/01/13/examples-of-floating-point-problems/">excellent blog post</a> describes these quirks of floating-point and real world impacts. </p>
+<p>Floating-point is a well-defined and a very useful format in many other programming contexts. We elected not to include it in Cedar not because it’s a “bad” format, but because we think it’s a bad idea to use this kind of arithmetic for authorization decisions.</p>
+<p>Because of this, Cedar also does not include mathematical operators such as division that return floating-point values. For example, the operation <code>1 / 3</code> would necessitate a floating-point value for the result. Cedar also does not allow multiplication with Decimal types, such as <code>1 * decimal(&quot;0.3&quot;)</code>, as this would lead to the same outcome.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="why-does-cedar-ignore-policies-that-error"><a class="header" href="#why-does-cedar-ignore-policies-that-error">Why does Cedar ignore policies that error?</a></h2>
+<p>When asking Cedar to make an authorization decision, it is possible for an error to occur. Consider the following example:</p>
+<pre><code>permit (
+    principal,
+    action == Action::&quot;read&quot;,
+    resource in Folder::&quot;financial_reports&quot;
+) when {
+    principal.jobRole == &quot;Finance&quot;
+};
+</code></pre>
+<p>If the value of <code>principal.jobRole</code> is undefined, this will cause an error during evaluation and Cedar will ignore the policy, treating the situation as if the policy never existed. Cedar will then continue evaluating the other policies to make a final authorization decision. Other situations can cause errors, as well, and they can be found by searching for &quot;error&quot; in the <a href="https://docs.cedarpolicy.com/syntax-operators.html">Cedar operator documentation</a>.</p>
+<p>This behavior can lead to the questions:</p>
+<ol>
+<li>Why does Cedar generate an error?</li>
+<li>And, why does it ignore a policy if it errors?</li>
+</ol>
+<h3 id="why-does-cedar-generate-an-error"><a class="header" href="#why-does-cedar-generate-an-error">Why does Cedar generate an error?</a></h3>
+<p>The decision to generate an error may appear unnecessary at first, especially if there are multiple conditions as in the following example:</p>
+<pre><code>permit (
+    principal,
+    action == Action::&quot;read&quot;,
+    resource in Folder::&quot;financial_reports&quot;
+) when {
+    principal.jobRole == &quot;Finance&quot; ||
+    principal.jobLevel &gt; 10    
+};
+</code></pre>
+<p>In this example, if <code>principal.jobRole</code> was undefined but <code>principal.jobLevel</code> was defined, it would be convenient for the policy to not error. The second condition would match and everything would proceed happily.</p>
+<p>Implementing this behavior would require treating the undefined attribute as some type of <code>nil</code> value. Any operation on this value, such as an equality check, would evaluate to false. This could be done, but it has a side-effect when negations are introduced:</p>
+<pre><code>// Permit anyone to read the folder UNLESS their job role is &quot;external_contractor&quot;.
+permit (
+    principal,
+    action == Action::&quot;read&quot;,
+    resource in Folder::&quot;financial_reports&quot;
+) when {
+    !( principal.jobRole == &quot;external_contractor&quot;)
+};
+</code></pre>
+<p>In this example, if a missing value of <code>principal.jobRole</code> was treated as a <code>nil</code> type, then the expression would surprisingly permit access. This is because <code>nil == &quot;external_contractor&quot;</code> would evaluate to false. But, since this is negated, the false becomes true.</p>
+<p>As a result, anyone with an undefined value of <code>jobRole</code> gets access to the resource. Is this desired behavior? Is it undesired? The answer is indeterminate and therefore Cedar errors. Only the policy author can resolve the ambiguity. To fix the error in this example, the policy author can amend the conditions to test if the attribute exists before using it.</p>
+<pre><code>// Permit anyone to read the folder UNLESS their job role is &quot;external_contractor&quot;.
+permit (
+    principal,
+    action == Action::&quot;read&quot;,
+    resource in Folder::&quot;financial_reports&quot;
+) when {
+    principal has robRole &amp;&amp;
+    !( principal.jobRole == &quot;external_contractor&quot;)
+};
+</code></pre>
+<h3 id="why-does-cedar-ignore-policies-that-error-1"><a class="header" href="#why-does-cedar-ignore-policies-that-error-1">Why does Cedar ignore policies that error?</a></h3>
+<p>When a policy errors, Cedar could halt and default the authorization decisiont to <code>Deny</code> instead of ignoring the error and proceeding to evaluate other policies. The reason it doesn't halt is for the safety of applications using Cedar. Imagine a system with 100 policies that are running successfully, and then someone adds policy number 101 which contains an error. If Cedar halted on error and emitted a default-deny decision for the entire batch of policies, then 100% of all authorization decisions in the system could begin failing, simply because someone introduced an error in one new policy.</p>
+<p>If this behavior is worrisome to you, note that the Cedar evaluator returns diagnostics that indicate if any policies emitted errors. System owners may use this field to monitor for errors or even choose to fail-closed on error, if desired.</p>
+<h3 id="what-about-forbid-statements"><a class="header" href="#what-about-forbid-statements">What about forbid statements?</a></h3>
+<p>It is relatively safe to ignore <code>permit</code> statements that error since the impact is to allow less access; something that was intended to be permitted is not permitted. However, the inverse happens when ignoring a <code>forbid</code> statement; something that was intended to be forbidden may not be forbidden.</p>
+<p>One of the larger debates during Cedar's design was whether errors in <code>forbid</code> statements should result in a policy being skipped, same as <code>permit</code> statements. The arguments on one side say it feels safer from a security perspective to behave differently and return a Deny decision when a <code>forbid</code> statement emits an error. At the same time, this has to be weighed against the blast impact of a mistake in a single policy resulting in 100% of all authorization queries returning a <code>Deny</code> decision. This behavior could lead to 100% unavailability for an application, which is also a goal of many types of attacks.</p>
+<p>In the end, this was a debate with no winning side. The reality is that <code>forbid</code> statements are powerful, and anyone deploying <code>forbid</code> statements to production with zero testing beforehand is likely to have a bad day either way. As a result, Cedar behaves consistently - an error in any policy statement, whether <code>permit</code> or <code>forbid</code>, will result in the policy being skipped during an authorization evaluation. To minimize risk, Cedar policy validation can detect policy statements that may error at runtime so they may be corrected before being used in production. In addition, some authorization systems go further by allowing shadow testing of new policies to audit for unexpected behaviors prior to enforcement. On top of this, Cedar returns diagnostics in the authorization response that indicates if errors occurred. This can be used to monitor for new errors that may arise after a policy is deployed. Or, if desired, system owners may use these diagnostics to observe when an error occurred in a <code>forbid</code> statement and can elect to treat that as a fail-closed scenario, if appropriate for their application.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="why-do-cedar-policies-end-with-a-semi-colon"><a class="header" href="#why-do-cedar-policies-end-with-a-semi-colon">Why do Cedar policies end with a semi-colon?</a></h2>
+<p>At one time or another, we all forget to include the semi-colon at the end of a policy statement. This can lead to the question: <em>why is it there?</em></p>
+<pre><code>// Sample Policy
+permit (principal, action, resource)
+when {
+    principal == resource.owner
+};
+</code></pre>
+<p>The semi-colon is not needed for parsing. In fact, early prototypes of Cedar didn't include it. The reason it's there is for safety.  Consider what would happen if the example above was accidentally truncated after the first line and a semi-colon wasn't required.</p>
+<pre><code>permit( principal, action, resource)
+</code></pre>
+<p>In such a scenario, this would be a valid statement. It allows <em>&quot;any principal&quot;</em> to perform <em>&quot;any action&quot;</em> on <em>&quot;any resource&quot;</em>. In other words, the system has failed-open because of a truncation mistake. The semi-colon protects against truncation errors.</p>
+<p>Now, you might say this feature needn't be baked into the Cedar grammar. After all, it could be the responsibility of everyone who is storing or transmitting policies to sign them or include a checksum, and to enforce that upon receipt to detect accidental truncation. For anyone concerned about data corruption, those remain helpful practices for any data. But, we wanted to ensure Cedar was safe by default for all audiences. And, it's not hard to imagine situations where a checksum wouldn't help at all, such as a bad copy-and-paste where the end-user forgot to highlight the entire policy and only copied a subset into a UI. The little semi-colon is the safety net to catch such mistakes.</p>
 
                     </main>
 

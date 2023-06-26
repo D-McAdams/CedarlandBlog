@@ -79,7 +79,7 @@ Regular expressions and string formatting operations are powerful features that 
 Regexes and string formatting operations carry runtime risks, as well. Regexes are subject to poor performance characteristics, including worst-case scenarios such as [catastrophic backtracking](https://www.google.com/search?q=regex+catastrophic+backtracking+ddos). String formatting operations can also be abused. To provide an example, consider an operator that concatenates two strings and emits a new string.
 
 ```
-newString = concat(string1,string2)
+new_string = concat(string1,string2)
 ```
 
 Presuming the input strings are well-bounded in size, this operator is safe when used once. But, what happens if string concatenations are nested?
@@ -107,9 +107,9 @@ Due to the power of exponential growth, it would take only 40 repetitions of con
 ### These operators are not analyzable
 As described in [Why was Cedar created?](../why-cedar/content.html), the language was built using verification-guided development and designed for automated reasoning. These techniques provide two benefits: they give a high-degree of confidence that Cedar is implemented correctly (i.e. bug free), and they also allow analyses in order to give you confidence that the policies you write in Cedar are correct.
 
-Regexes and many string formatting operators are not amenable to these formal reasoning techniques. As a result, these operators simultaneously increase the likelihood of end-user mistakes when writing policies, while at the same time lessening Cedar's ability to alert users of these mistakes. 
+Regular expressions and many string formatting operators are not amenable to these formal reasoning techniques. As a result, these operators simultaneously increase the likelihood of end-user mistakes when writing policies, while at the same time lessening Cedar's ability to alert users of these mistakes. 
 
 ### Alternative Approaches
-As mentioned earlier, the most common approach is to pre-format data before passing it into the authorization evaluator, thereby freeing policy authors from the need for regular expressions and string formatting operators.
+As mentioned earlier, the most common approach is to pre-format data before passing it into the authorization evaluator, thereby freeing policy authors from the need for regular expressions and string formatting operations.
 
-When this is insufficient, the Cedar team is interested in hearing the requirements. (You can reach the community on the [Cedar Slack channel](https://communityinviter.com/apps/cedar-policy/cedar-policy-language).) Although Cedar is strict in terms of safety, it is also pragmatically motivated to solve real-world scenarios. Quite often, alternative approaches can be found that address requirements while adhering to safety goals. For example, **Cedar includes a `like` operator with the wildcard character `*`**, which solves many situations that would otherwise require regexes. Cedar also supports extended datatypes for fields such as [IP Address](https://docs.cedarpolicy.com/syntax-datatypes.html#ipaddr), with built in validation and helpful operators that can be used in policy expressions. Additional extended datatypes can be introduced if they have broad applicability.
+When this is insufficient, the Cedar team is interested in hearing the requirements. (You can reach the community on the [Cedar Slack channel](https://communityinviter.com/apps/cedar-policy/cedar-policy-language).) Although Cedar is strict in terms of safety, it is also pragmatically motivated to solve real-world scenarios. Quite often, alternative approaches can be found that address requirements while adhering to safety goals. For example, **Cedar includes a [`like` operator](https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard) with wildcard matching**, which solves many situations that would otherwise require regexes. Cedar also supports extended datatypes for fields such as [IP Address](https://docs.cedarpolicy.com/syntax-datatypes.html#ipaddr), with built in validation and helpful operators that can be used in policy expressions. Additional extended datatypes can be introduced if they have broad applicability.

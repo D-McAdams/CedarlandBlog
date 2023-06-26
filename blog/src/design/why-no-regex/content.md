@@ -50,7 +50,7 @@ From this perspective, the URL information could be passed into the evaluator in
 ```
 "context": {
     "url": {
-        "transport": "https",
+        "protocol": "https",
         "host": "example.com",
         "path": "/path",
         "queryParams" {

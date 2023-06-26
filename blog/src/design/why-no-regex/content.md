@@ -4,7 +4,7 @@ Cedar's design methodology is underpinned by a philosophy of safety, as describe
 
 Regular expressions and string formatting operators were intentionally omitted from the language because they work against these safety goals. This blog post describes why they can be dangerous and alternative approaches to writing policies without them.
 
-### These operators are error-prone (and impolite)
+### These operators are error-prone (and impolite to policy authors)
 As an example, consider an authorization policy that wants to make decisions based on a URL and query string received by a web application. A naïve way to do this is to pass the entire URL as a string into the context of the policy evaluator:
 
 ```
@@ -13,18 +13,27 @@ As an example, consider an authorization policy that wants to make decisions bas
 }
 ```
 
-If the policy author wanted to make decisions based on subcomponents of the URL, such as the host name or particular query parameters, the policy author might need to apply regexes to match the subcomponents. They would also need to use string formatting operators to normalize the values appropriately. Normalization is important because fields such as `host` are case-insensitive, and a malicious actor could potentially subvert the following authorization rule by simply sending an HTTP request with different capitalization.
-
+If the policy author wanted to make decisions based on subcomponents of the URL, such as the host name or particular query parameters, the policy author might need to apply regexes to match the subcomponents.
 
 ```
-forbid (principal, action, resource) 
+forbid (principal, action, resource)
 unless {
-    // Uh oh, someone could bypass this rule by using "EXAMPLE.COM"
     context.url.matches("^http(s?)://example.com/")
 };
 ```
 
-In the example above, we might get lucky if the web server had already normalized the host name, or the policy author remembered to do so. But, what about the query parameter values. Are those case-insensitive or not? Do they have other normalization requirements? And, if so, how would the policy author know? These are application-specific details.
+They would also need to use string formatting operators to normalize the values appropriately. Normalization is important because fields such as `host` are case-insensitive, and a malicious actor could potentially subvert an authorization rule by sending an HTTP request with different capitalization.
+
+```
+forbid (principal, action, resource) 
+unless {
+    //Lowercase the hostname before matching, otherwise a caller
+    //could bypass this policy by sending https://EXAMPLE.COM/
+    context.url.toLowerCase.matches("^http(s?)://example.com/")
+};
+```
+
+But, how should policy authors handle the query parameters? Are those case-insensitive or not? Do they have other normalization requirements? And, if so, how would the policy author know? These are application-specific details.
 
 ```
 forbid (principal, action, resource)

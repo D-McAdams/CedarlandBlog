@@ -147,20 +147,27 @@
                         <h2 id="why-doesnt-cedar-have-regexes-or-string-formatting-operators"><a class="header" href="#why-doesnt-cedar-have-regexes-or-string-formatting-operators">Why doesn't Cedar have regexes or string formatting operators?</a></h2>
 <p>Cedar's design methodology is underpinned by a philosophy of safety, as described in <a href="../why-cedar/content.html">&quot;Why was Cedar created?&quot;</a>. Safety considerations are wide-ranging and can include factors such as preventing excessive resource consumption, preserving the ability to analyze polices for correctness, or simply guiding policy authors away from common logical mistakes.</p>
 <p>Regular expressions and string formatting operators were intentionally omitted from the language because they work against these safety goals. This blog post describes why they can be dangerous and alternative approaches to writing policies without them.</p>
-<h3 id="these-operators-are-error-prone-and-impolite"><a class="header" href="#these-operators-are-error-prone-and-impolite">These operators are error-prone (and impolite)</a></h3>
+<h3 id="these-operators-are-error-prone-and-impolite-to-policy-authors"><a class="header" href="#these-operators-are-error-prone-and-impolite-to-policy-authors">These operators are error-prone (and impolite to policy authors)</a></h3>
 <p>As an example, consider an authorization policy that wants to make decisions based on a URL and query string received by a web application. A naïve way to do this is to pass the entire URL as a string into the context of the policy evaluator:</p>
 <pre><code>&quot;context&quot;: {
-    &quot;url&quot;: &quot;https://example.co/path?queryParam1=hello&amp;queryParam2=world&quot;
+    &quot;url&quot;: &quot;https://example.com/path?queryParam1=hello&amp;queryParam2=world&quot;
 }
 </code></pre>
-<p>If the policy author wanted to make decisions based on subcomponents of the URL, such as the host name or particular query parameters, the policy author might need to apply regexes to match the subcomponents. They would also need to use string formatting operators to normalize the values appropriately. Normalization is important because fields such as <code>host</code> are case-insensitive, and a malicious actor could potentially subvert the following authorization rule by simply sending an HTTP request with different capitalization.</p>
-<pre><code>forbid (principal, action, resource) 
+<p>If the policy author wanted to make decisions based on subcomponents of the URL, such as the host name or particular query parameters, the policy author might need to apply regexes to match the subcomponents.</p>
+<pre><code>forbid (principal, action, resource)
 unless {
-    // Uh oh, someone could bypass this rule by using &quot;EXAMPLE.CO&quot;
-    context.url.matches(&quot;^http(s?)://example.co/&quot;)
+    context.url.matches(&quot;^http(s?)://example.com/&quot;)
 };
 </code></pre>
-<p>In the example above, we might get lucky if the web server had already normalized the host name, or the policy author remembered to do so. But, what about the query parameter values. Are those case-insensitive or not? Do they have other normalization requirements? And, if so, how would the policy author know? These are application-specific details.</p>
+<p>They would also need to use string formatting operators to normalize the values appropriately. Normalization is important because fields such as <code>host</code> are case-insensitive, and a malicious actor could potentially subvert an authorization rule by sending an HTTP request with different capitalization.</p>
+<pre><code>forbid (principal, action, resource) 
+unless {
+    //Lowercase the hostname before matching, otherwise a caller
+    //could bypass this policy by sending https://EXAMPLE.COM/
+    context.url.toLowerCase.matches(&quot;^http(s?)://example.com/&quot;)
+};
+</code></pre>
+<p>But, how should policy authors handle the query parameters? Are those case-insensitive or not? Do they have other normalization requirements? And, if so, how would the policy author know? These are application-specific details.</p>
 <pre><code>forbid (principal, action, resource)
 unless {
     // Should this also match &quot;HELLO&quot; or &quot;Hello&quot;?
@@ -172,7 +179,7 @@ unless {
 <pre><code>&quot;context&quot;: {
     &quot;url&quot;: {
         &quot;transport&quot;: &quot;https&quot;,
-        &quot;host&quot;: &quot;example.co&quot;,
+        &quot;host&quot;: &quot;example.com&quot;,
         &quot;path&quot;: &quot;/path&quot;,
         &quot;queryParams&quot; {
             &quot;queryParam1&quot;: &quot;hello&quot;,
@@ -184,7 +191,7 @@ unless {
 <p>And a policy author could express rules such as the following:</p>
 <pre><code>forbid (principal, action, resource)
 unless {
-    context.url.host == &quot;example.co&quot;
+    context.url.host == &quot;example.com&quot;
 };
 </code></pre>
 <p>Another reason that regular expressions are error-prone is because of human error. To provide a real life example shared with me by a teammate, a policy author (in a non-Cedar system) wanted to write a rule that allowed anyone in the <em>&quot;admin&quot;</em> group to have super-administrator privileges in an application. This was done by examining a user's list of groups and testing against the regex <code>/admin/</code>. The mistake was not including the word-boundary conditions in the regex, such that this rule accidentally matched the group <em>&quot;administrative-assistants&quot;</em> and theoretically, I guess, the <em>&quot;badminton-club&quot;</em>. The administrative assistants discovered this access and found it quite useful in getting their job done.</p>

@@ -9,7 +9,7 @@ As an example, consider an authorization policy that wants to make decisions bas
 
 ```
 "context": {
-    "url": "https://example.co/path?queryParam1=hello&queryParam2=world"
+    "url": "https://example.com/path?queryParam1=hello&queryParam2=world"
 }
 ```
 
@@ -19,8 +19,8 @@ If the policy author wanted to make decisions based on subcomponents of the URL,
 ```
 forbid (principal, action, resource) 
 unless {
-    // Uh oh, someone could bypass this rule by using "EXAMPLE.CO"
-    context.url.matches("^http(s?)://example.co/")
+    // Uh oh, someone could bypass this rule by using "EXAMPLE.COM"
+    context.url.matches("^http(s?)://example.com/")
 };
 ```
 
@@ -42,7 +42,7 @@ From this perspective, the URL information could be passed into the evaluator in
 "context": {
     "url": {
         "transport": "https",
-        "host": "example.co",
+        "host": "example.com",
         "path": "/path",
         "queryParams" {
             "queryParam1": "hello",
@@ -57,7 +57,7 @@ And a policy author could express rules such as the following:
 ```
 forbid (principal, action, resource)
 unless {
-    context.url.host == "example.co"
+    context.url.host == "example.com"
 };
 ```
 

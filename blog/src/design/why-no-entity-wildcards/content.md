@@ -2,7 +2,7 @@
 
 **TLDR: This can be a risky anti-pattern. This post explains the risks and how to accomplish it when absolutely necessary.**
 
-Cedar support wildcards for string matching via the [like](https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard) operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessary understand *why* someone would want wildcard matching in Entity Ids.
+Cedar supports wildcards for string matching via the [like](https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard) operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessary understand *why* someone would want wildcard matching in Entity Ids.
 
 For those new to Cedar, [Entity Ids]( https://docs.cedarpolicy.com/syntax-entity.html) are the means to refer to a specific principal or resource within a policy statement. Examples may look like this:
 

@@ -1,0 +1,308 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Why doesn&#x27;t Cedar allow wildcards in Entity Ids? - Cedarland Blog</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../about.html">About</a></li><li class="chapter-item expanded "><a href="../../design/introduction/content.html"><strong aria-hidden="true">1.</strong> Design History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../design/why-cedar/content.html"><strong aria-hidden="true">1.1.</strong> Why was Cedar created?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-regex/content.html"><strong aria-hidden="true">1.2.</strong> Why doesn't Cedar have regexes and string operators?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-float/content.html"><strong aria-hidden="true">1.3.</strong> Why doesn't Cedar support floating point numbers?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-entity-wildcards/content.html" class="active"><strong aria-hidden="true">1.4.</strong> Why doesn't Cedar allow wildcards in Entity Ids?</a></li><li class="chapter-item expanded "><a href="../../design/why-ignore-errors/content.html"><strong aria-hidden="true">1.5.</strong> Why does Cedar ignore policies that error?</a></li><li class="chapter-item expanded "><a href="../../design/why-semicolon/content.html"><strong aria-hidden="true">1.6.</strong> Why do Cedar policies end with a semi-colon?</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Cedarland Blog</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="why-doesnt-cedar-allow-wildcards-in-entity-ids"><a class="header" href="#why-doesnt-cedar-allow-wildcards-in-entity-ids">Why doesn't Cedar allow wildcards in Entity Ids?</a></h2>
+<p><strong>TLDR: This can be a risky anti-pattern. This post explains the risks and how to accomplish it when absolutely necessary.</strong></p>
+<p>Cedar support wildcards for string matching via the <a href="https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard">like</a> operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessary understand <em>why</em> someone would want wildcard matching in Entity Ids.</p>
+<p>For those new to Cedar, <a href="https://docs.cedarpolicy.com/syntax-entity.html">Entity Ids</a> are the means to refer to a specific principal or resource within a policy statement. Examples may look like this:</p>
+<pre><code>permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource == File::&quot;8d60e1b7-ed63-419b-b198-13ac9e803ee7&quot;
+);
+</code></pre>
+<p>The fields labeled &quot;User&quot; and &quot;File&quot; are the Entity Ids. They consist of a type like <code>User</code>, plus an identifier like <code>5fb883fb-229c-48bc-b186-e7ed9074b536</code>.</p>
+<p>In this example, we have used UUIDs as the identifiers. Synthetic identifiers are recommended by the <a href="https://docs.cedarpolicy.com/security.html">Cedar Security guidance</a>. When using UUIDs, the benefits of having wildcards in the identifier may not be readily apparent. After all, trying to match against a pattern such as <code>User::&quot;5fb883*4b536&quot;</code>is unlikely to be useful in practice.</p>
+<p>Therefore, questions about wildcard support most often arise in situations where the Entity Id is not synthetic, but rather a string that encodes information about the system. For example, the identifier might be a path that describes a hierarchical nesting of resources:</p>
+<pre><code>File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
+</code></pre>
+<p>If wildcards were allowed by Cedar, then access to all folders for a specific department could be represented by using a wildcard in the identifier, as follows:</p>
+<pre><code>permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource == File::&quot;/Org:923902/Department:4992/*&quot;
+);
+</code></pre>
+<p>Another situation where identifiers can encode information is when they include metadata, such as the owner of the resource:</p>
+<pre><code>File::&quot;user:32432423/image123.jpg&quot;
+File::&quot;user:32432423/image456.jpg&quot;
+</code></pre>
+<p>In this example, each file name is prepended with the userId of the owner, and someone can be granted access to the files they own via a policy such as:</p>
+<pre><code>permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource == File::&quot;user:32432423/*&quot;
+);
+</code></pre>
+<h3 id="security-considerations"><a class="header" href="#security-considerations">Security Considerations</a></h3>
+<p>As alluded to earlier in this post, embedding system information like this into identifiers is against the <a href="https://docs.cedarpolicy.com/security.html#security-best-practices-for-applications-using-cedar">Cedar Security guidance</a>. Here's an extract from the guidance:</p>
+<blockquote>
+<p>Use unique, immutable, and non-recyclable IDs for entity identifiers….</p>
+</blockquote>
+<p>There are a class of authorization vulnerabilities that arise from not following this guidance. One of the impacts occurs when an identifier is recycled. For example, if access is granted to a customer named <code>User::&quot;alice&quot;</code>, and then Alice departs and a new customer acquires the same username <code>User::&quot;alice&quot;</code>, then the new user gets access to everything granted by policies that still reference <code>User::&quot;alice&quot;</code>.</p>
+<p>Another subtle vulnerability occurs when identifiers require normalization. For example, consider the identifier we observed previously:</p>
+<pre><code>File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
+</code></pre>
+<p>What would be the impact if the filesystem was case-insensitive?</p>
+<pre><code>// All these identifiers resolve to the same resource
+File::&quot;/Org:923902/Department:4992/Folder:monthlyreports/january2023.pdf&quot;
+File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
+File::&quot;/Org:923902/Department:4992/Folder:MONTHLYREPORTS/JANUARY2023.pdf&quot;
+</code></pre>
+<p>Imagine if the file was retrievable via an HTTP request to a web application:</p>
+<pre><code>GET https://example.com/Org_923902/Department_4992/Folder_MONTHLYREPORTS/JANUARY2023.pdf
+</code></pre>
+<p>If the application forgot to normalize the filename it received in the HTTP request prior to authorization, then the following rule could be bypassed by the caller simply by using different capitalization:</p>
+<pre><code>// UH-OH: This forbid rule won't work when is_authorized()
+// is invoked with an uppercase version of the filename.
+forbid ()
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource == File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
+);
+</code></pre>
+<p>Other side-effects of poorly-formed identifiers include the following nuisances:</p>
+<div class="table-wrapper"><table><thead><tr><th>Id Style</th><th>Impact</th></tr></thead><tbody>
+<tr><td><code>User::&quot;alice&quot;</code></td><td>Alice can't change her username without re-creating all policies</td></tr>
+<tr><td><code>File::&quot;user:12354323:image.jpg&quot;</code></td><td>File can't be assigned to a new owner without re-creating all policies</td></tr>
+<tr><td><code>File::&quot;folder:VacationPhotos/image123.jpg&quot;</code></td><td>File can't be moved to a new Folder without re-creating all policies</td></tr>
+</tbody></table>
+</div>
+<p>In summary, prefer to use synthetic identifiers (such as UUID) whenever feasible. If this security guidance is followed, then wildcards in the Entity Id provide little value. Cedar offers alternative, more robust mechanisms to deliver the same capabilities that the wildcards were providing. For example, Cedar has built-in support for <a href="https://docs.cedarpolicy.com/terminology.html#groups-and-hierarchies">hierarchical relationships</a>, so these don't need to be embedded in the identifier. Cedar also has built-in support for <a href="https://docs.cedarpolicy.com/terminology.html">attribute-based access controls</a>, so concepts such as &quot;owner&quot; don't need to be embedded in the identifiers.</p>
+<h3 id="but-what-if-i-still-need-wildcards"><a class="header" href="#but-what-if-i-still-need-wildcards">But, what if I still need wildcards?</a></h3>
+<p>Despite the security guidance, there may be situations when non-synthetic identifiers are unavoidable. This could occur, for example, if identifiers are constructed by an external system outside the control of the application owner. If security risks are acknowledged and mitigated, and the situation is unavoidable, then there can be a legitimate need to perform wildcard matching on the identifier.</p>
+<p>Cedar allows wildcard matching in the policy conditions: </p>
+<pre><code>// Valid Syntax
+permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource
+) when {
+    resource.id like &quot;*part1*part2*&quot; // &lt;-- Wildcards are allowed in policy conditions
+};
+</code></pre>
+<p>But, Cedar blocks this in the policy head:</p>
+<pre><code>// ERROR. Invalid Syntax
+permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource == File::*part1*part2*&quot; // &lt;-- Wildcards prohibited in policy head
+);
+</code></pre>
+<p>The real question is therefore: why does Cedar prohibit wildcards in the policy head, but allow them in the conditions?  The reasoning rests on understanding why the policy head is special, and the tradeoffs of using wildcards.</p>
+<p>The policy head defines where a policy is &quot;attached&quot;, meaning whether it applies to a single resource, a predefined group of resources, or perhaps any resource where certain conditions are met. The more narrowly scoped the policy head can be, the more efficient a system can perform in terms of policy storage, retrieval, and evaluation. This is an important consideration as the number of policies in a system increases. </p>
+<p>When policies are &quot;attached&quot; to a specific resource or resource-group, this also enables different types of authorization queries such as &quot;list all the resources a principal can access&quot;.</p>
+<p>Using wildcards in an entity identifier is equivalent to saying &quot;I don't know exactly which resource this will apply to, but it should match any resource where the identifier value satisfies a set of conditions&quot;. This is attribute-based access control (ABAC), which must be represented in the Cedar conditions. The reasoning for this is <a href="https://www.youtube.com/watch?v=k6pPcnLuOXY&amp;t=2325s">described by my teammate Emina Torlak in her talk</a>.</p>
+<h3 id="performance-and-scaling-considerations"><a class="header" href="#performance-and-scaling-considerations">Performance and Scaling Considerations</a></h3>
+<p>Something to be aware of when using lots and lots of ABAC policies modeled in this way, where a resource is unspecified in the policy head, is that you may see performance linearly slow as the number of policies increases. This is because there is no shortcut to ignore the policy. Each one must be evaluated, because each policy could potentially match any resource; we don't know for sure until the conditions are evaluated.</p>
+<p>Another consideration is that hosted storage solutions will often place limits on the total amount of policies that can be stored for an unspecified value of resource. For example, at the time of this writing, Amazon Verified Permissions will allow a maximum of <a href="https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/quotas.html">200,000 bytes</a>. </p>
+<p>Lastly, by not specifying a specific resource identifier in the policy, it is no longer feasible to answer the question &quot;What resources can a principal access?&quot; by examining the policies, because the information isn't in the policies. The best that Cedar could answer is the conditions under which a resource is accessible.</p>
+<p>All of these tradeoffs are inherent to any ABAC approach. ABAC is a powerful and useful tool, though it has impacts worth understanding. </p>
+<p>Therefore, the reason Cedar only allows wildcards in the conditions is to make it clear there is no magic. Wildcards result in an ABAC-style policy with all the same tradeoffs and considerations as any other ABAC policy. </p>
+<p>In summary, blocking wildcards in the policy head is Cedar's way of nudging end-users toward best practices that result in the best security, the best scaling, and the most features, while at the same time allowing an escape-valve via ABAC conditions for the less common situations that require it.</p>
+<h3 id="related-issues"><a class="header" href="#related-issues">Related Issues</a></h3>
+<p>The solution described above requires application owners to manually add an attribute on the principal/resource named &quot;id&quot; (or whatever you want to call it) and then fill in the value with the identifier. To make this easier and more syntactically pleasing, there is currently an <a href="https://github.com/cedar-policy/cedar/issues/119">open GitHub issue</a> proposing a syntax that &quot;just works&quot; without extra work by the application owner:</p>
+<pre><code>permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource
+) when {
+    resource like File::&quot;image*.jpg&quot;
+};
+</code></pre>
+<p>At the time of this writing, this issue is still under discussion. </p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../design/why-no-float/content.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../../design/why-ignore-errors/content.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../design/why-no-float/content.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../../design/why-ignore-errors/content.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

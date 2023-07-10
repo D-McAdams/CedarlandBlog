@@ -155,7 +155,7 @@
 );
 </code></pre>
 <p>The fields labeled &quot;User&quot; and &quot;File&quot; are the Entity Ids. They consist of a type like <code>User</code>, plus an identifier like <code>5fb883fb-229c-48bc-b186-e7ed9074b536</code>.</p>
-<p>In this example, we have used UUIDs as the identifiers. Synthetic identifiers are recommended by the <a href="https://docs.cedarpolicy.com/security.html">Cedar Security guidance</a>. When using UUIDs, the benefits of having wildcards in the identifier may not be readily apparent. After all, trying to match against a pattern such as <code>User::&quot;5fb883*4b536&quot;</code>is unlikely to be useful in practice.</p>
+<p>In this example, we have used UUIDs as the identifiers. Synthetic identifiers are recommended by the <a href="https://docs.cedarpolicy.com/security.html">Cedar Security guidance</a>. When using synthetic identifers, the benefits of wildcards may not be readily apparent. After all, trying to match against a pattern such as <code>User::&quot;5fb883*4b536&quot;</code>is unlikely to be useful in practice.</p>
 <p>Therefore, questions about wildcard support most often arise in situations where the Entity Id is not synthetic, but rather a string that encodes information about the system. For example, the identifier might be a path that describes a hierarchical nesting of resources:</p>
 <pre><code>File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
 </code></pre>
@@ -177,8 +177,17 @@ File::&quot;user:32432423/image456.jpg&quot;
     resource == File::&quot;user:32432423/*&quot;
 );
 </code></pre>
+<p>Lastly, the goal may be to match <em>any</em> identifer of a particular type:</p>
+<pre><code>//Allow any User to read any File
+permit (
+    principal == User::&quot;*&quot;,
+    action == Action::&quot;readFile&quot;,
+    resource == File::&quot;*&quot;
+);
+</code></pre>
+<p>This last pattern is about testing the type of an entity. It is best addressed by a new operator named <code>is</code> which is under discussion in <a href="https://github.com/cedar-policy/rfcs/pull/5">RFC 0005</a> and does not require wildcards. Hence, the remainder of this post will focus on the previous cases.</p>
 <h3 id="security-considerations"><a class="header" href="#security-considerations">Security Considerations</a></h3>
-<p>As alluded to earlier in this post, embedding system information like this into identifiers is against the <a href="https://docs.cedarpolicy.com/security.html#security-best-practices-for-applications-using-cedar">Cedar Security guidance</a>. Here's an extract from the guidance:</p>
+<p>As alluded to earlier in this post, embedding system information into identifiers is against the <a href="https://docs.cedarpolicy.com/security.html#security-best-practices-for-applications-using-cedar">Cedar Security guidance</a>. Here's an extract from the guidance:</p>
 <blockquote>
 <p>Use unique, immutable, and non-recyclable IDs for entity identifiers….</p>
 </blockquote>
@@ -198,7 +207,7 @@ File::&quot;/Org:923902/Department:4992/Folder:MONTHLYREPORTS/JANUARY2023.pdf&qu
 <p>If the application forgot to normalize the filename it received in the HTTP request prior to authorization, then the following rule could be bypassed by the caller simply by using different capitalization:</p>
 <pre><code>// UH-OH: This forbid rule won't work when is_authorized()
 // is invoked with an uppercase version of the filename.
-forbid ()
+forbid (
     principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
     action,
     resource == File::&quot;/Org:923902/Department:4992/Folder:MonthlyReports/January2023.pdf&quot;
@@ -221,30 +230,41 @@ permit (
     action,
     resource
 ) when {
-    resource.id like &quot;*part1*part2*&quot; // &lt;-- Wildcards are allowed in policy conditions
+    resource.id like &quot;*part1*part2*&quot; // &lt;-- Wildcards are allowed in policy conditions.
+                                     //     See discussion at end of blog post for 
+                                     //     more details on the &quot;id&quot; field.
 };
 </code></pre>
-<p>But, Cedar blocks this in the policy head:</p>
+<p>But, Cedar blocks this in the policy scope:</p>
 <pre><code>// ERROR. Invalid Syntax
 permit (
     principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
     action,
-    resource == File::*part1*part2*&quot; // &lt;-- Wildcards prohibited in policy head
+    resource == File::*part1*part2*&quot; // &lt;-- Wildcards prohibited in policy scope
 );
 </code></pre>
-<p>The real question is therefore: why does Cedar prohibit wildcards in the policy head, but allow them in the conditions?  The reasoning rests on understanding why the policy head is special, and the tradeoffs of using wildcards.</p>
-<p>The policy head defines where a policy is &quot;attached&quot;, meaning whether it applies to a single resource, a predefined group of resources, or perhaps any resource where certain conditions are met. The more narrowly scoped the policy head can be, the more efficient a system can perform in terms of policy storage, retrieval, and evaluation. This is an important consideration as the number of policies in a system increases. </p>
+<p>The real question is therefore: why does Cedar prohibit wildcards in the policy scope, but allow them in the conditions?  The reasoning rests on understanding why the policy scope is special, and the tradeoffs of using wildcards.</p>
+<p>The policy scope defines where a policy is &quot;attached&quot;, meaning whether it applies to a single resource, a predefined group of resources, or perhaps any resource where certain conditions are met. The more narrowly defined the policy scope can be, the more efficient a system can perform in terms of policy storage, retrieval, and evaluation. This is an important consideration as the number of policies in a system increases. </p>
 <p>When policies are &quot;attached&quot; to a specific resource or resource-group, this also enables different types of authorization queries such as &quot;list all the resources a principal can access&quot;.</p>
 <p>Using wildcards in an entity identifier is equivalent to saying &quot;I don't know exactly which resource this will apply to, but it should match any resource where the identifier value satisfies a set of conditions&quot;. This is attribute-based access control (ABAC), which must be represented in the Cedar conditions. The reasoning for this is <a href="https://www.youtube.com/watch?v=k6pPcnLuOXY&amp;t=2325s">described by my teammate Emina Torlak in her talk</a>.</p>
 <h3 id="performance-and-scaling-considerations"><a class="header" href="#performance-and-scaling-considerations">Performance and Scaling Considerations</a></h3>
-<p>Something to be aware of when using lots and lots of ABAC policies modeled in this way, where a resource is unspecified in the policy head, is that you may see performance linearly slow as the number of policies increases. This is because there is no shortcut to ignore the policy. Each one must be evaluated, because each policy could potentially match any resource; we don't know for sure until the conditions are evaluated.</p>
+<p>Something to be aware of when using lots and lots of ABAC policies modeled in this way, where a resource is unspecified in the policy scope, is that you may see performance linearly slow as the number of policies increases. This is because there is no shortcut to ignore the policy. Each one must be evaluated, because each policy could potentially match any resource; we don't know for sure until the conditions are evaluated.</p>
 <p>Another consideration is that hosted storage solutions will often place limits on the total amount of policies that can be stored for an unspecified value of resource. For example, at the time of this writing, Amazon Verified Permissions will allow a maximum of <a href="https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/quotas.html">200,000 bytes</a>. </p>
 <p>Lastly, by not specifying a specific resource identifier in the policy, it is no longer feasible to answer the question &quot;What resources can a principal access?&quot; by examining the policies, because the information isn't in the policies. The best that Cedar could answer is the conditions under which a resource is accessible.</p>
 <p>All of these tradeoffs are inherent to any ABAC approach. ABAC is a powerful and useful tool, though it has impacts worth understanding. </p>
 <p>Therefore, the reason Cedar only allows wildcards in the conditions is to make it clear there is no magic. Wildcards result in an ABAC-style policy with all the same tradeoffs and considerations as any other ABAC policy. </p>
-<p>In summary, blocking wildcards in the policy head is Cedar's way of nudging end-users toward best practices that result in the best security, the best scaling, and the most features, while at the same time allowing an escape-valve via ABAC conditions for the less common situations that require it.</p>
+<p>In summary, blocking wildcards in the policy scope is Cedar's way of nudging end-users toward best practices that result in the best security, the best scaling, and the most features, while at the same time allowing an escape-valve via ABAC conditions for the less common situations that require it.</p>
 <h3 id="related-issues"><a class="header" href="#related-issues">Related Issues</a></h3>
-<p>The solution described above requires application owners to manually add an attribute on the principal/resource named &quot;id&quot; (or whatever you want to call it) and then fill in the value with the identifier. To make this easier and more syntactically pleasing, there is currently an <a href="https://github.com/cedar-policy/cedar/issues/119">open GitHub issue</a> proposing a syntax that &quot;just works&quot; without extra work by the application owner:</p>
+<p>The solution described above relies an attribute on the resource named <code>id</code>:</p>
+<pre><code>permit (
+    principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
+    action,
+    resource
+) when {
+    resource.id like &quot;*part1*part2*&quot; // &lt;-- Matching on &quot;id&quot; attribute
+};
+</code></pre>
+<p>The <code>id</code> field is <em>not</em> a built-in property provided by Cedar. It is simply an attributed named &quot;id&quot; (or whatever you want to call it) that is manually populated by the application owner. The drawback of this approach is that it requires the identifier to be copied into a second place to write conditions against it. To make this easier and more syntactically pleasing, there is currently an <a href="https://github.com/cedar-policy/cedar/issues/119">open GitHub issue</a> proposing a syntax that just works without the extra copying.</p>
 <pre><code>permit (
     principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,
     action,

@@ -1,0 +1,254 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>How well do Cedar policies compress? - Cedarland Blog</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../about.html">About</a></li><li class="chapter-item expanded "><a href="../../design/introduction/content.html"><strong aria-hidden="true">1.</strong> Design History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../design/why-cedar/content.html"><strong aria-hidden="true">1.1.</strong> Why was Cedar created?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-regex/content.html"><strong aria-hidden="true">1.2.</strong> Why doesn't Cedar have regexes and string operators?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-float/content.html"><strong aria-hidden="true">1.3.</strong> Why doesn't Cedar support floating point numbers?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-entity-wildcards/content.html"><strong aria-hidden="true">1.4.</strong> Why doesn't Cedar allow wildcards in Entity Ids?</a></li><li class="chapter-item expanded "><a href="../../design/why-ignore-errors/content.html"><strong aria-hidden="true">1.5.</strong> Why does Cedar ignore policies that error?</a></li><li class="chapter-item expanded "><a href="../../design/why-semicolon/content.html"><strong aria-hidden="true">1.6.</strong> Why do Cedar policies end with a semi-colon?</a></li></ol></li><li class="chapter-item expanded "><a href="../../usage/introduction/content.html"><strong aria-hidden="true">2.</strong> Cedar Usage</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../usage/compression/content.html" class="active"><strong aria-hidden="true">2.1.</strong> How well do Cedar policies compress?</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Cedarland Blog</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="how-well-do-cedar-policies-compress"><a class="header" href="#how-well-do-cedar-policies-compress">How well do Cedar policies compress?</a></h2>
+<p>I was curious about this question as it could be useful information for scenarios ranging from storing lots of policies compactly to injecting a single policy into a space-constrained bearer token. The hunch was that Cedar policies would compress well due to the fixed structure of the language. After all, most policies start with the same 20 characters: <code>&quot;permit (principal == &quot;</code>.</p>
+<p>This question can never lead to an absolute answer since compression rates vary by policy contents. After all, one could add a 10MB randomly-generated string into a policy and the compression rates would fall off a cliff, regardless of the algorithm. Nevertheless, ignoring pathological scenarios, I wanted to know the order of magnitude that one might expect from common cases. So, I spent an afternoon running a few experiments.</p>
+<p>The answer, of course, is &quot;it depends&quot;. Ratios ranged from 17% to 90%. But, it's fair to say that for files containing more than 50 policies, the compression ratio is likely to be over 80%. (Bigger is better for this ratio; 80% means a 10MB file would compress to 2MB.)</p>
+<p>The remainder of this post describes the methodology and details.</p>
+<h3 id="experiment-1-more-than-100-policies"><a class="header" href="#experiment-1-more-than-100-policies">Experiment 1: More than 100 policies</a></h3>
+<p>I wrote a short program to randomly generate RBAC &amp; ABAC style policies with varying conditions. To make it as unfair as possible, I used randomly generated strings for attribute names and values. In real life, most attribute name/value pairs are likely to be dictionary words, such as <code>&quot;location&quot;: &quot;Seattle&quot;</code>, which may improve compression rates. But, I wanted to be pessimistic.</p>
+<p>The first experiment used <a href="https://en.wikipedia.org/wiki/Zlib">zlib</a> with default settings. I compressed various files containing 10K, 1K, and 100 policies where the policies were either pure RBAC, pure ABAC, or a mix. Here's the resulting compression ratios:</p>
+<div class="table-wrapper"><table><thead><tr><th></th><th>RBAC</th><th>ABAC</th><th>Mix</th></tr></thead><tbody>
+<tr><td>100 Policies</td><td>81%</td><td>87%</td><td>82%</td></tr>
+<tr><td>1000 Policies</td><td>82%</td><td>90%</td><td>85%</td></tr>
+<tr><td>10,000 Policies</td><td>82%</td><td>90%</td><td>86%</td></tr>
+</tbody></table>
+</div>
+<p>As the table shows, all compression ratios fell between 80-90%. ABAC fared slightly better, likely because all the policies started with:</p>
+<pre><code>permit (principal, action, resource) when {
+</code></pre>
+<p>followed by conditions using common keywords like <code>principal</code>, <code>resource</code>, and <code>context</code>.</p>
+<p>RBAC fared slightly worse, likely because of the random UUIDs sprinkled throughout.</p>
+<pre><code>permit (
+    principal == ExampleApp::User::&quot;a8e37111304143ae9cd75bf2625aa4ac&quot;,
+    action in [
+        ExampleApp::Action::&quot;fvasthxzcm&quot;,
+        ExampleApp::Action::&quot;rrgoxrwupc&quot;,
+        ExampleApp::Action::&quot;ktjytscfvp&quot;
+    ],
+    resource == ExampleApp::Resource::&quot;daffb6288dfb4bb5a0c4df4de7ca76ba&quot;
+);
+</code></pre>
+<p>I tried a few variations that toggled zlib's configuration between fast vs. best compression rates, and while it varied the results by small percentage points, everything stayed in the 80-90% band. </p>
+<h3 id="experiment-2-fewer-than-100-policies"><a class="header" href="#experiment-2-fewer-than-100-policies">Experiment 2: Fewer than 100 policies</a></h3>
+<p>Compression ratios are expected to worsen with smaller data sets and the subsequent experiments confirmed that. A single ABAC policy compressed by merely  <strong>17%</strong>. A single RBAC policy fared better at <strong>44%</strong>, likely assisted (as seen in the example above) by repetitive tokens such as <code>ExampleApp::Action::</code></p>
+<p>Between 1-100 policies was an inflection point. I iterated across that range to find the trend lines. Here's the results.</p>
+<p><img src="compression-ratios.png" alt="Graph of compression ratios for one to one-hundred policies" /></p>
+<p>As it shows, having at least 10 policies is sufficient to gain a 70% compression rate, and having 40+ policies is sufficient to deliver 80%.</p>
+<p>Fewer than 5 policies led to a precipitous drop and highly variable results that depended on the repetitiveness within the policies themselves. For example, a single RBAC policy with a long list of <code>ExampleApp::Action::</code> elements might compress by half due to the repetition of the actions, whereas an ABAC policy of equivalent length may barely compress at all. </p>
+<p>Was it possible to make the compression ratios more reliable? This led to the final experiment…</p>
+<h3 id="experiment-3-using-a-pre-built-dictionary"><a class="header" href="#experiment-3-using-a-pre-built-dictionary">Experiment 3: Using a Pre-built Dictionary</a></h3>
+<p>The <a href="https://en.wikipedia.org/wiki/Zstd">ZStandard</a> compression utility makes it easy to pre-generate a dictionary from a training dataset that can be used to improve the results when compressing small datasets. This is helpful because we know that all Cedar policies will contain similar elements, such as starting with <code>&quot;permit (principal ==&quot;</code>. If this knowledge can be predefined in a dictionary, then compression activity can use that fact even when operating upon a single policy. </p>
+<p>To setup this experiment, I generated training data consisting of 10K random policies with a mixture of RBAC and ABAC, and then used the <code>zstd</code> tools to generate a dictionary and run another series of benchmarks. </p>
+<p>The results... the compression ratio for a single ABAC policy increased from 17% to 56%. And, an RBAC policy increased slightly from 44% to 48%.</p>
+<p>Once the number of policies increased to 5, results were on par with those from <code>zlib</code>. So, on the whole, a pre-built dictionary helped push the compression rate up to ~50% when compressing 1-2 policies, and had little effect beyond that. Advanced dictionary tuning may increase that further, but doing so was beyond the scope for this simple series of experiments.</p>
+<h3 id="takeaways"><a class="header" href="#takeaways">Takeaways</a></h3>
+<p>With maximal laziness, using default compression settings, we might expect a compression ratio of 80-90% for 100+ policies.</p>
+<p>Note that these tests were run using policies that all shared a uniform formatting convention and no inline comments. The addition of random whitespace and comments into Cedar policies, as might be anticipated if humans were writing them, could slightly dampen the rates. Therefore, stripping comments and re-formatting policies could be a beneficial prerequisite to compaction. These tests also relied upon synthetic data that may deviate from real-world policies; time will tell if the compression ratios hold true in production settings.</p>
+<p>For a small number of policies, a pre-built dictionary could help deliver a lower bound of ~50% compression with minimal effort, and possibly more with extra dictionary tuning. This might be helpful, but is admittedly a fair amount of work to shave off a few bytes. As an alternative approach, one of the ideas that occasionally arises is the ability to pre-parse and pre-compile Cedar policies into a byte-code representation. This would have the effect of both shrinking the overall size and also lowering the evaluation cost, since policies arrive pre-compiled and ready to go. Therefore, if future scenarios arise where it would be beneficial to pack a small number of policies as tightly as possible (such as in bearer tokens), efforts might best be directed towards a Cedar byte-code representation instead of clever compression dictionaries. This path would deliver a more reliable win all-around and provides benefits to anyone who wants to reduce evaluation costs, regardless of the number of policies.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../usage/introduction/content.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../usage/introduction/content.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -20,7 +20,8 @@
 </html>
 
 ## Recent Posts
-* [June 27, 2023 - Why doesn't Cedar allow wildcards in Entity Ids?](./design/why-no-entity-wildcards/content.html)
+* [July 16, 2023 - How well do Cedar policies compress?](./usage/compression/content.md)
+* [June 27, 2023 - Why doesn't Cedar allow wildcards in Entity Ids?](./design/why-no-entity-wildcards/content.md)
 * [June 25, 2023 - Why doesn't Cedar have regexes or string formatting operators?](./design/why-no-regex/content.md)
 * [June 25, 2023 - Why doesn't Cedar support floating-point numbers?](./design/why-no-float/content.md)
 * [June 25, 2023 - Why does Cedar ignore policies that error?](./design/why-ignore-errors/content.md)

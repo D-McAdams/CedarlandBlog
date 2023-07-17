@@ -10,3 +10,6 @@
     - [Why does Cedar ignore policies that error?](./design/why-ignore-errors/content.md)
     - [Why do Cedar policies end with a semi-colon?](./design/why-semicolon/content.md)
 
+- [Cedar Usage](./usage/introduction/content.md)
+    - [How well do Cedar policies compress?](./usage/compression/content.md)
+

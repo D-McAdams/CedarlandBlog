@@ -39,7 +39,7 @@ permit (
 );
 ``` 
 
-I tried a few variations that toggled zlib's configuration between fast vs. best compression, and while it varied the results by small percentage points, everything stayed in the 80-90% band. 
+I tried a few variations that toggled zlib's configuration between fast vs. best compression, and while it varied the results by small percentages, everything stayed in the 80-90% band. 
 
 ### Experiment 2: Fewer than 100 policies
 
@@ -63,12 +63,12 @@ To setup this experiment, I generated training data consisting of 10K random pol
 
 The results... the compression ratio for a single ABAC policy increased from 17% to 56%. And, an RBAC policy increased slightly from 44% to 48%.  
 
-Once the number of policies increased to 5, results were on par with those from `zlib`. So, on the whole, a pre-built dictionary helped push the compression rate up to ~50% when compressing 1-2 policies, and had little effect beyond that. Advanced dictionary tuning may increase that further, but doing so was beyond the scope for this simple series of experiments.
+Once the number of policies increased to 5, results were on par with those from `zlib`. So, on the whole, a pre-built dictionary helped push the compression rate up to ~50% when compressing 1-2 policies, and had little effect beyond that. Advanced dictionary tuning may increase that further, but doing so was beyond the scope of this simple series of experiments.
 
 ### Takeaways 
 
 With maximal laziness, using default compression settings, we might expect a space savings of 80-90% for 100+ policies.
 
-Note that these tests were run using policies that all shared uniform formatting and no inline comments. The addition of random whitespace and comments into Cedar policies, as might be anticipated if humans were writing them, could slightly dampen the rates. Therefore, stripping comments and re-formatting policies could be a beneficial prerequisite to compaction. These tests also relied upon synthetic data that may deviate from real-world policies, so mileage may vary.
+Note that tests were run using policies that shared uniform formatting and no inline comments. The addition of random whitespace and comments into Cedar policies, as might be expected if humans were writing them, could dampen the rates. Therefore, stripping comments and re-formatting policies could be a beneficial prerequisite to compaction. These tests also relied upon synthetic data that may deviate from real-world policies, so mileage may vary.
 
 For a small number of policies, a pre-built dictionary could help deliver a lower bound of ~50% compression with minimal effort, and possibly more with extra dictionary tuning. This might be helpful, but is admittedly a fair amount of work to shave off a few bytes. As an alternative approach, one of the ideas that occasionally arises is the ability to pre-parse and pre-compile Cedar policies into a byte-code representation. This would have the effect of both shrinking the overall size and also lowering the evaluation cost, since policies arrive pre-compiled and ready to go. Therefore, if future scenarios arise where it would be beneficial to pack a small number of policies as tightly as possible (such as in bearer tokens), efforts might best be directed towards a Cedar byte-code representation instead of clever compression dictionaries. This path would deliver a more reliable win all-around and provide benefits to anyone who wants to reduce evaluation costs, regardless of the number of policies.  

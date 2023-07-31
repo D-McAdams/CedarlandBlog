@@ -20,7 +20,7 @@ The first experiment used [zlib](https://en.wikipedia.org/wiki/Zlib) with defaul
 | 1000 Policies   | 82%  | 90%  | 85% |
 | 10,000 Policies | 82%  | 90%  | 86% |
 
-As the table shows, all compression rates fell between 80-90%. ABAC fared slightly better, likely because all the policies started with:
+As the table shows, all compression rates were between 80-90%. ABAC fared slightly better, likely because all the policies started with:
 ```
 permit (principal, action, resource) when {
 ``` 
@@ -45,7 +45,7 @@ I tried a few variations that toggled zlib's configuration between fast vs. best
 
 Compression rates are expected to worsen with smaller data and the subsequent experiments confirmed that. A single ABAC policy compressed by merely  **17%**. A single RBAC policy fared better at **44%**, likely assisted (as seen in the example above) by repetitive tokens such as `ExampleApp::Action::`
 
-Between 1-100 policies was an inflection point. I iterated across that range to find the trend lines. Here's the results.
+Between 1-100 policies was an inflection point. I iterated across that range to find the trends. Here's the results.
 
 ![Graph of compression rates for one to one-hundred policies](compression-ratios.png)
 
@@ -61,7 +61,7 @@ Instead of using `zlib`, the alternative [ZStandard](https://en.wikipedia.org/wi
 
 To setup this experiment, I generated training data consisting of 10K random policies with a mixture of RBAC and ABAC, and then used the `zstd` tools to generate a dictionary and run another series of benchmarks. 
 
-The results... the compression ratio for a single ABAC policy increased from 17% to 56%. And, an RBAC policy increased slightly from 44% to 48%.  
+The results: the compression ratio for a single ABAC policy increased from 17% to 56%. And, an RBAC policy increased slightly from 44% to 48%.  
 
 Once the number of policies increased to 5, results were on par with those from `zlib`. So, on the whole, a pre-built dictionary helped push the compression rate up to ~50% when compressing 1-2 policies, and had little effect beyond that. Advanced dictionary tuning may increase that further, but doing so was beyond the scope of this simple series of experiments.
 

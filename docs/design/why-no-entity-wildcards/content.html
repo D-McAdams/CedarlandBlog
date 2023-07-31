@@ -146,7 +146,7 @@
                     <main>
                         <h2 id="why-doesnt-cedar-allow-wildcards-in-entity-ids"><a class="header" href="#why-doesnt-cedar-allow-wildcards-in-entity-ids">Why doesn't Cedar allow wildcards in Entity Ids?</a></h2>
 <p><strong>TLDR: This can be a risky anti-pattern. This post explains the risks and how to accomplish it when absolutely necessary.</strong></p>
-<p>Cedar supports wildcards for string matching via the <a href="https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard">like</a> operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessary understand <em>why</em> someone would want wildcard matching in Entity Ids.</p>
+<p>Cedar supports wildcards for string matching via the <a href="https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard">like</a> operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessarily understand <em>why</em> someone would want wildcard matching in Entity Ids.</p>
 <p>For those new to Cedar, <a href="https://docs.cedarpolicy.com/syntax-entity.html">Entity Ids</a> are the means to refer to a specific principal or resource within a policy statement. Examples may look like this:</p>
 <pre><code>permit (
     principal == User::&quot;5fb883fb-229c-48bc-b186-e7ed9074b536&quot;,

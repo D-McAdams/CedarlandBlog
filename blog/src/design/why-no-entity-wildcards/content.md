@@ -2,9 +2,9 @@
 
 **TLDR: This can be a risky anti-pattern. This post explains the risks and how to accomplish it when absolutely necessary.**
 
-Cedar supports wildcards for string matching via the [like](https://docs.cedarpolicy.com/syntax-operators.html#like-string-matching-with-wildcard) operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessarily understand *why* someone would want wildcard matching in Entity Ids.
+Cedar supports wildcards for string matching via the [like](https://docs.cedarpolicy.com/policies/syntax-operators.html#operators-string-like) operator. However, wildcards are not allowed for Entity Id matching. Before explaining why, the question itself deserves explanation as not everyone will necessarily understand *why* someone would want wildcard matching in Entity Ids.
 
-For those new to Cedar, [Entity Ids]( https://docs.cedarpolicy.com/syntax-entity.html) are the means to refer to a specific principal or resource within a policy statement. Examples may look like this:
+For those new to Cedar, [Entity Ids](https://docs.cedarpolicy.com/policies/syntax-entity.html) are the means to refer to a specific principal or resource within a policy statement. Examples may look like this:
 
 ```
 permit (
@@ -16,7 +16,7 @@ permit (
 
 The fields labeled "User" and "File" are the Entity Ids. They consist of a type like `User`, plus an identifier like `5fb883fb-229c-48bc-b186-e7ed9074b536`.
 
-In this example, we have used UUIDs as the identifiers. Synthetic identifiers are recommended by the [Cedar Security guidance](https://docs.cedarpolicy.com/security.html). When using synthetic identifers, the benefits of wildcards may not be readily apparent. After all, trying to match against a pattern such as `User::"5fb883*4b536"`is unlikely to be useful in practice.
+In this example, we have used UUIDs as the identifiers. Synthetic identifiers are recommended by the [Cedar Security guidance](https://docs.cedarpolicy.com/other/security.html). When using synthetic identifers, the benefits of wildcards may not be readily apparent. After all, trying to match against a pattern such as `User::"5fb883*4b536"`is unlikely to be useful in practice.
 
 Therefore, questions about wildcard support most often arise in situations where the Entity Id is not synthetic, but rather a string that encodes information about the system. For example, the identifier might be a path that describes a hierarchical nesting of resources:
 
@@ -62,7 +62,7 @@ permit (
 This last pattern is about testing the type of an entity. It is best addressed by a new operator named `is` which is under discussion in [RFC 0005](https://github.com/cedar-policy/rfcs/pull/5) and does not require wildcards. Hence, the remainder of this post will focus on the previous cases.
 
 ### Security Considerations
-As alluded to earlier in this post, embedding system information into identifiers is against the [Cedar Security guidance]( https://docs.cedarpolicy.com/security.html#security-best-practices-for-applications-using-cedar). Here's an extract from the guidance:
+As alluded to earlier in this post, embedding system information into identifiers is against the [Cedar Security guidance](https://docs.cedarpolicy.com/other/security.html#security-best-practices). Here's an extract from the guidance:
 
 > Use unique, immutable, and non-recyclable IDs for entity identifiers….
 
@@ -108,7 +108,7 @@ Other side-effects of poorly-formed identifiers include the following nuisances:
 | `File::"user:12354323:image.jpg"` | File can't be assigned to a new owner without re-creating all policies |
 | `File::"folder:VacationPhotos/image123.jpg"` | File can't be moved to a new Folder without re-creating all policies |
 
-In summary, prefer to use synthetic identifiers (such as UUID) whenever feasible. If this security guidance is followed, then wildcards in the Entity Id provide little value. Cedar offers alternative, more robust mechanisms to deliver the same capabilities that the wildcards were providing. For example, Cedar has built-in support for [hierarchical relationships](https://docs.cedarpolicy.com/terminology.html#groups-and-hierarchies), so these don't need to be embedded in the identifier. Cedar also has built-in support for [attribute-based access controls](https://docs.cedarpolicy.com/terminology.html), so concepts such as "owner" don't need to be embedded in the identifiers.
+In summary, prefer to use synthetic identifiers (such as UUID) whenever feasible. If this security guidance is followed, then wildcards in the Entity Id provide little value. Cedar offers alternative, more robust mechanisms to deliver the same capabilities that the wildcards were providing. For example, Cedar has built-in support for [hierarchical relationships](https://docs.cedarpolicy.com/overview/terminology.html#term-group), so these don't need to be embedded in the identifier. Cedar also has built-in support for [attribute-based access controls](https://docs.cedarpolicy.com/overview/terminology.html#term-policy), so concepts such as "owner" don't need to be embedded in the identifiers.
 
 ### But, what if I still need wildcards? 
 

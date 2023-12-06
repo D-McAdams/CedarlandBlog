@@ -12,4 +12,4 @@
 
 - [Cedar Usage](./usage/introduction/content.md)
     - [How well do Cedar policies compress?](./usage/compression/content.md)
-
+    - [A quick guide to partial evaluation](./usage/partial-evaluation/content.md)

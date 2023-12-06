@@ -1,0 +1,480 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A quick guide to partial evaluation - Cedarland Blog</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../about.html">About</a></li><li class="chapter-item expanded "><a href="../../design/introduction/content.html"><strong aria-hidden="true">1.</strong> Design History</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../design/why-cedar/content.html"><strong aria-hidden="true">1.1.</strong> Why was Cedar created?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-regex/content.html"><strong aria-hidden="true">1.2.</strong> Why doesn't Cedar have regexes and string operators?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-float/content.html"><strong aria-hidden="true">1.3.</strong> Why doesn't Cedar support floating point numbers?</a></li><li class="chapter-item expanded "><a href="../../design/why-no-entity-wildcards/content.html"><strong aria-hidden="true">1.4.</strong> Why doesn't Cedar allow wildcards in Entity Ids?</a></li><li class="chapter-item expanded "><a href="../../design/why-ignore-errors/content.html"><strong aria-hidden="true">1.5.</strong> Why does Cedar ignore policies that error?</a></li><li class="chapter-item expanded "><a href="../../design/why-semicolon/content.html"><strong aria-hidden="true">1.6.</strong> Why do Cedar policies end with a semi-colon?</a></li></ol></li><li class="chapter-item expanded "><a href="../../usage/introduction/content.html"><strong aria-hidden="true">2.</strong> Cedar Usage</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../usage/compression/content.html"><strong aria-hidden="true">2.1.</strong> How well do Cedar policies compress?</a></li><li class="chapter-item expanded "><a href="../../usage/partial-evaluation/content.html" class="active"><strong aria-hidden="true">2.2.</strong> A quick guide to partial evaluation</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Cedarland Blog</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="a-quick-guide-to-partial-evaluation"><a class="header" href="#a-quick-guide-to-partial-evaluation">A Quick Guide To Partial Evaluation</a></h1>
+<p><em>I am pleased to share this guest post by Aaron Eline, my teammate and one of the implementors of Cedar partial evaluation. If you'd like to chat further about any of the features described in this post, join us in the <a href="https://communityinviter.com/apps/cedar-policy/cedar-policy-language">Cedar Slack channel</a>. -Darin</em></p>
+<h2 id="enabling-partial-evaluation"><a class="header" href="#enabling-partial-evaluation">Enabling partial evaluation</a></h2>
+<p>Partial evaluation is released as an “experimental” feature. This means two things</p>
+<ol>
+<li>We don’t have a formal model or proof of correctness </li>
+<li>We expect the API to change somewhat as customers experiment with the feature. (This means we welcome feedback!)</li>
+</ol>
+<p>To enable partial evaluation, let’s start a new cargo project with the following <code>Cargo.toml</code></p>
+<pre><code>[package]
+name = &quot;pe_example&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2021&quot;z
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cedar-policy = { features = [&quot;partial-eval&quot;], git=&quot;https://github.com/cedar-policy/cedar&quot;, branch = &quot;main&quot; }
+</code></pre>
+<p>This enables the <code>partial-eval</code> experimental feature, and also grabs the latest commit off of our dev branch instead of what’s published to <code>crates.io</code>. (We need this because one of the APIs used below hasn’t made it to stable release yet.)</p>
+<h2 id="using-partial-evaluation"><a class="header" href="#using-partial-evaluation">Using partial evaluation</a></h2>
+<p>Partial evaluation exposes one key new function on the <code>Authorizer</code> struct: <code>is_authorized_partial</code>. ( <a href="https://github.com/cedar-policy/cedar/blob/4c8c0c42b1c28b05d63bd9298ee0f7ec935abfec/cedar-policy/src/api.rs#L613">source</a>) This takes the same arguments as <code>is_authorized</code>, but has a different return type. Where <code>is_authorized</code> is guaranteed to always return either <code>Allow</code> or <code>Deny</code>, <code>is_authorized_partial</code> can return <code>Allow</code>, <code>Deny</code>, or a “residual”: the set of policies it was unable to evaluate. </p>
+<h2 id="a-quick-demo"><a class="header" href="#a-quick-demo">A quick demo</a></h2>
+<p>Let’s create a quick demo application that reads a policy set and context off of disk and attempts to authorize:</p>
+<pre><code>use cedar_policy::{PolicySet, Authorizer, Request, Context, Entities};
+use std::io::prelude::*;
+
+fn main() {
+
+    let policies_src = std::fs::read_to_string(&quot;./policies.cedar&quot;).unwrap();
+    let policies : PolicySet = policies_src.parse().unwrap();
+
+    let f = std::fs::File::open(&quot;./context.json&quot;).unwrap();
+    let context = Context::from_json_file(f, None).unwrap();
+
+    let auth = Authorizer::new();
+    let r = Request::new(Some(r#&quot;User::&quot;Alice&quot;&quot;#.parse().unwrap()), 
+                         Some(r#&quot;Action::&quot;View&quot;&quot;#.parse().unwrap()),
+                         Some(r#&quot;Box::&quot;A&quot;&quot;#.parse().unwrap()), 
+                         context,
+                         None).unwrap();
+    let answer = auth.is_authorized(&amp;r, &amp;policies, &amp;Entities::empty());
+    println!(&quot;{:?}&quot;, answer);
+}
+</code></pre>
+<p>Let’s try it with a simple <code>policies.cedar</code> :</p>
+<pre><code>permit(principal,action,resource);
+</code></pre>
+<p>and the empty context in <code>context.json</code>:</p>
+<pre><code>{}
+</code></pre>
+<p>Running it, we see:</p>
+<pre><code>aeline@88665a58d3ad example % cargo r
+   Compiling example v0.1.0 (/Users/aeline/src/example)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.54s
+     Running `target/debug/example`
+Response { decision: Allow, 
+           diagnostics: Diagnostics { reason: {PolicyId(PolicyID(&quot;policy0&quot;))}, 
+           errors: {} } }
+</code></pre>
+<p>We get <code>Allow</code>, as expected, since the policy should match anything. Let’s try now by changing the line with <code>is_authorized</code> to use <code>is_authorized_partial</code> :</p>
+<pre><code>`    let answer = auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty());`
+</code></pre>
+<p>Running it:</p>
+<pre><code>aeline@88665a58d3ad example % cargo r
+   Compiling example v0.1.0 (/Users/aeline/src/example)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.56s
+     Running `target/debug/example`
+Concrete(Response { decision: Allow, 
+                    diagnostics: Diagnostics { reason: {PolicyId(PolicyID(&quot;policy0&quot;))},
+                    errors: {} } })
+</code></pre>
+<p>Now we get a slightly different answer, saying the evaluator was able to produce concrete answer, and that answer was <code>Allow</code> . There’s nothing in our policy or context that would prevent a full and concrete answer. </p>
+<h3 id="our-first-residual"><a class="header" href="#our-first-residual">Our First Residual</a></h3>
+<p>Let’s try a new <code>policies.cedar</code>:</p>
+<pre><code>forbid(principal, action, resource) unless {
+    context.secure
+};
+
+permit(principal == User::&quot;Alice&quot;, action, resource) when {
+    context.location == &quot;Baltimore&quot;
+};
+</code></pre>
+<p>and <code>context.json</code> :</p>
+<pre><code>{
+    &quot;secure&quot; : true,
+    &quot;location&quot; : { &quot;__extn&quot; : {
+        &quot;fn&quot; : &quot;unknown&quot;,
+        &quot;arg&quot; : &quot;location&quot;
+    }}
+}
+</code></pre>
+<p>Here, we set the value of the <code>location</code> field to a call to the <code>extension</code> function <code>unknown</code>. <code>unknown</code> values are “holes” that the partial evaluator cannot further reduce, and ultimately can lead to evaluation not producing a concrete answer.</p>
+<p>Let’s try evaluating our request with these new inputs:</p>
+<pre><code>aeline@88665a58d3ad example % cargo r
+    Finished dev [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/example`
+Residual(ResidualResponse { 
+  residuals: PolicySet { 
+    ast: PolicySet { 
+      templates: { PolicyID(&quot;policy1&quot;): 
+      Template { 
+        body: TemplateBody { 
+          id: PolicyID(&quot;policy1&quot;),
+          annotations: {}, 
+          effect: Permit, 
+          principal_constraint: PrincipalConstraint { 
+            constraint: Any 
+          },          ....
+</code></pre>
+<p>The debug printer displays loads of unecessary information in a a hard to read format. Let’s change our code to use the pretty printer, rather than the debug printer:</p>
+<pre><code>match auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty()) {
+  PartialResponse::Concrete(r) =&gt; println!(&quot;{:?}&quot;, r),
+  PartialResponse::Residual(r) =&gt; {
+    println!(&quot;Residuals:&quot;);
+    for policy in r.residuals().policies() {
+      println!(&quot;{policy}&quot;);
+    }
+  }
+}
+</code></pre>
+<p>Re-running with this new printer gives us: </p>
+<pre><code>Residuals:
+permit(
+  principal,
+  action,
+  resource
+) when {
+  true &amp;&amp; (unknown(location) == &quot;Baltimore&quot;)
+};
+</code></pre>
+<p>We can see that the <code>forbid</code> policy has dropped entirely, as <code>context.secure</code> was fully known so we know the <code>forbid</code> policy doesn’t apply. On the <code>permit</code> policy, the head constraints have been simplified away (as <code>principal</code> was in fact <code>User::&quot;alice&quot;</code>). What remains is the constraint that <code>context.location</code> has to equal <code>&quot;Baltimore&quot;</code>, plus a residual <code>true &amp;&amp;</code> expression which is explained further in <a href="#caveats">Caveats</a>.</p>
+<p>If we change our <code>context.json</code> to set <code>context.secure</code> to be <code>false</code>, and re-run, we get:</p>
+<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+    Finished dev [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/pe_example`
+Response { decision: Deny, 
+           diagnostics: Diagnostics { reason: {PolicyId(PolicyID(&quot;policy0&quot;))}, 
+           errors: [] } }
+</code></pre>
+<p>Now we get <code>Deny</code>. Even though the value of <code>context.location</code> was unknown, it wasn’t needed to compute the final result, as the <code>forbid</code> policy trumps the <code>permit</code>. </p>
+<h2 id="a-simple-application"><a class="header" href="#a-simple-application">A simple application</a></h2>
+<p>Let’s use a simple document application as a demo for how one could use Partial Evaluation in a real application. 
+In this application there will be two kinds of entities: <code>User</code>s and <code>Document</code>s. Every document has two attributes: <code>isPublic</code> and <code>owner</code>. There are two actions: <code>View</code> and <code>Delete</code>. Requests pass a <code>context</code> with two values: the request’s source IP address, <code>src_ip</code>, and whether or not the request was authenticated with multiple factors, <code>mfa_authed</code>. Here are our policies for this application:</p>
+<pre><code>// Users can access public documents
+permit (
+    principal,
+    action == DocCloud::Action::&quot;View&quot;,
+    resource
+)
+when { resource.isPublic };
+
+// Users can access owned documents if they are mfa-authenticated
+permit (
+    principal,
+    action == DocCloud::Action::&quot;View&quot;,
+    resource
+)
+when { context.mfa_authed &amp;&amp; resource.owner == principal };
+
+// Users can only delete documents they own, and they both come from the company network and are mfa-authenticated
+permit (
+    principal,
+    action == DocCloud::Action::&quot;Delete&quot;,
+    resource
+)
+when
+{
+    context.src_ip.isInRange(ip(&quot;1.1.1.0/24&quot;)) &amp;&amp;
+    context.mfa_authed &amp;&amp;
+    resource.owner == principal
+};
+</code></pre>
+<h3 id="what-can-alice-access"><a class="header" href="#what-can-alice-access">What can Alice access?</a></h3>
+<p>Concrete evaluation works for answering the question “Can Alice access Document ABC?”. But it doesn’t work well for answering the question “What documents can Alice access?”. Partial evaluation can help us answer this question by extracting the residual policies around an unknown <code>resource</code> that would evaluate to <code>Allow</code>, ignoring/folding away constraints that don’t matter or are common to all resources.</p>
+<p>We’ll change our simple <code>main</code> to the following:</p>
+<pre><code>fn main() {
+
+    let policies_src = std::fs::read_to_string(&quot;./policies.cedar&quot;).unwrap();
+    let policies: PolicySet = policies_src.parse().unwrap();
+    
+
+    let f = std::fs::File::open(&quot;./context.json&quot;).unwrap();
+    let context = Context::from_json_file(f, None).unwrap();
+
+    let auth = Authorizer::new();
+
+    let r = RequestBuilder::default()
+        .principal(Some(r#&quot;DocCloud::User::&quot;Alice&quot;&quot;#.parse().unwrap()))
+        .action(Some(r#&quot;DocCloud::Action::&quot;View&quot;&quot;#.parse().unwrap()))
+        .context(context)
+        .build()
+        .unwrap();
+
+    match auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty()) {
+        PartialResponse::Concrete(r) =&gt; println!(&quot;{:?}&quot;, r),
+        PartialResponse::Residual(r) =&gt; {
+            println!(&quot;Residuals:&quot;);
+            for policy in r.residuals().policies() {
+                println!(&quot;{policy}&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+<p>This is mostly the same as last time, but with one important difference: We’ve dropped <code>.resource()</code> from our <code>RequestBuilder</code>. This sets <code>resource</code> to be an <code>unknown</code> value. </p>
+<p>Running this with the following <code>context.json</code>:</p>
+<pre><code>{
+        &quot;mfa_authed&quot; : true,
+        &quot;src_ip&quot; : { &quot;__extn&quot; : {
+          &quot;fn&quot; : &quot;ip&quot;,
+          &quot;arg&quot; : &quot;1.1.1.0/24&quot;
+        }
+}
+</code></pre>
+<p>Yields:</p>
+<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+    Finished dev [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/pe_example`
+Residuals:
+
+permit(
+  principal,
+  action,
+  resource
+) when {
+  true &amp;&amp; (true &amp;&amp; ((unknown(resource)[&quot;owner&quot;]) == DocCloud::User::&quot;Alice&quot;))
+};
+
+
+permit(
+  principal,
+  action,
+  resource
+) when {
+  true &amp;&amp; (unknown(resource)[&quot;isPublic&quot;])
+};
+</code></pre>
+<p>Her are some interesting things about this residual set:</p>
+<ol>
+<li>The policy governing <code>Delete</code> is gone. It evaluates to <code>false</code> and so is dropped from the residual.</li>
+<li>The constraint that <code>action</code> must equal <code>View</code> is gone from the two remaining policies, since it is always <code>true</code> for this request. </li>
+<li>The constraint on <code>context.mfa_authed</code> is also gone since it is also <code>true</code>, always.</li>
+</ol>
+<p>Let’s try a few more scenarios. First we’ll change our <code>context.json</code> to: </p>
+<pre><code>{
+        &quot;mfa_authed&quot; : false,
+        &quot;src_ip&quot; : { &quot;__extn&quot; : {
+          &quot;fn&quot; : &quot;ip&quot;,
+          &quot;arg&quot; : &quot;1.1.1.0/24&quot;
+        }
+}
+</code></pre>
+<p>Re-running: </p>
+<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+    Finished dev [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/pe_example`
+Residuals:
+permit(
+  principal,
+  action,
+  resource
+) when {
+  true &amp;&amp; (unknown(resource)[&quot;isPublic&quot;])
+};
+</code></pre>
+<p>Now we only get the one residual policy. No matter who owns a document, principals without MFA can view only public documents.</p>
+<p>Let’s now try changing our <code>Action</code> in the request (defined in <code>main.rs</code>) to <code>DocCloud::Action::&quot;Delete&quot;</code>: </p>
+<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+    Finished dev [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/pe_example`
+Response { decision: Deny, diagnostics: Diagnostics { reason: {}, errors: [] } }
+</code></pre>
+<p>Now we simply get <code>Deny</code>! Even with the <code>resource</code> fully unknown, there is no way for any rule involving <code>Delete</code> to ever evaluate to true given our <code>context</code> .</p>
+<h3 id="what-to-do-with-the-residuals"><a class="header" href="#what-to-do-with-the-residuals">What to do with the residuals?</a></h3>
+<p>What now? Our original goal was to answer the question: Which resources does Alice have access to? We have shown the simplified policies that would grant access to Alice, but we are not all the way there. The residual policies are essentially constraints that represent Alice’s set of viewable documents. Any document that meets those constraints, i.e., one in which replacing <code>unknown(resource)</code> with the document entity ID causes a residual policy to evaluate to true, is included in the set. What you would like to do is use these constraints to efficiently fetch the data that satisfies them. Since Cedar doesn’t have any way of knowing how your specific application stores data, it can’t do this on its own. </p>
+<p>Fortunately, the Cedar language is pretty small, so it’s easy to convert it into another language that can be used to do that. Let’s imagine that for this sample application, our document metadata is stored in a relational database. We could translate our remaining Cedar residual into a SQL query we can submit to the database. If our metadata is in a table called <code>documents</code>, with the columns <code>id</code>, <code>is_public</code>, and <code>owner</code> , then we can translate our first residual into the following query:</p>
+<pre><code>SELECT id FROM documents WHERE 
+(true AND true AND owner == 'DocCloud::User::&quot;Alice&quot;') 
+|| 
+(true AND is_public);
+</code></pre>
+<p>And our second residual would become:</p>
+<pre><code>SELECT id FROM documents WHERE (true AND is_public);
+</code></pre>
+<p>These queries could then be submitted to a database in order to retrieve the set of documents that Alice is authorized to access. Importantly, partial evaluation has already evaluated all of the authorization info that the database is unable to answer, such as whether or not the request was authenticated with MFA.</p>
+<h2 id="caveats"><a class="header" href="#caveats">Caveats</a></h2>
+<p>One missing feature of partial evaluation is being able to make a guarantee to the partial evaluator that an unknown will be filled with a value of a certain type. This why the residuals above contain items like <code>true &amp;&amp; unknown(resource)[&quot;isPublic&quot;]</code> . The partial evaluator can’t guarantee that <code>resource.isPublic</code> is always a boolean, so it has to leave the <code>&amp;&amp;</code> un-evaluated to preserve the error behavior if <code>isPublic</code> is a non-boolean. It would be ideal if <code>true &amp;&amp; unknown</code> would partially evaluate to <code>unknown</code>. Expressions could be more aggressively constant-folded down to values if more type information was known. This remains an area for future work.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../usage/compression/content.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../usage/compression/content.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -20,6 +20,7 @@
 </html>
 
 ## Recent Posts
+* [December 5, 2023 - A quick guide to partial evaluation](./usage/partial-evaluation/content.md)
 * [July 16, 2023 - How well do Cedar policies compress?](./usage/compression/content.md)
 * [June 27, 2023 - Why doesn't Cedar allow wildcards in Entity Ids?](./design/why-no-entity-wildcards/content.md)
 * [June 25, 2023 - Why doesn't Cedar have regexes or string formatting operators?](./design/why-no-regex/content.md)

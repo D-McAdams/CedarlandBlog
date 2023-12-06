@@ -1,6 +1,6 @@
 ## Why doesn't Cedar support floating point numbers?
 
-Sometimes, it's necessary to write an authorization rule against numbers that contain decimal parts. For example, you may want to check if a currency field is greater than `"1.99"`, or compare the output from an ML-based risk scoring system which emits values such as `"0.9234"`. **Cedar supports this using the [Decimal type](https://docs.cedarpolicy.com/syntax-datatypes.html#decimal)** with a fixed precision, where the maximum number of digits after the decimal is four. 
+Sometimes, it's necessary to write an authorization rule against numbers that contain decimal parts. For example, you may want to check if a currency field is greater than `"1.99"`, or compare the output from an ML-based risk scoring system which emits values such as `"0.9234"`. **Cedar supports this using the [Decimal type](https://docs.cedarpolicy.com/policies/syntax-operators.html#function-decimal)** with a fixed precision, where the maximum number of digits after the decimal is four. 
 
 In many other programming environments, there is an alternative representation of numbers known as [floating-point](https://en.wikipedia.org/wiki/Floating-point_arithmetic) which allows for bigger or smaller values with different degrees of precision. For example, a floating point number might approximate the value of pi with a sequence of digits such as `"3.141592653589793…"` up to the maximum size allowed by the data type, often 64 bits or 15 decimal digits.
 
@@ -12,7 +12,7 @@ Floating-point is a well-defined and a very useful format in many other programm
 
 Because of this, Cedar also does not include mathematical operators such as division that return floating-point values. For example, the operation `1 / 3` would necessitate a floating-point value for the result. Cedar also does not allow multiplication with Decimal types, such as `1 * decimal("0.3")`, as this would lead to the same outcome.
 
-For additional information on the Cedar `Decimal` type and other operators, see the [documentation](https://docs.cedarpolicy.com/syntax-operators.html). `Decimal` supports the following operations:
+For additional information on the Cedar `Decimal` type and other operators, see the [documentation](https://docs.cedarpolicy.com/policies/syntax-operators.html#function-decimal). `Decimal` supports the following operations:
 ```
 decimal("0.3") == decimal("0.3")                //true
 decimal("0.3") != decimal("0.4321")             //true

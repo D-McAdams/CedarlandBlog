@@ -699,25 +699,26 @@ permit (
     principal,
     action == DocCloud::Action::&quot;View&quot;,
     resource
-)
-when { resource.isPublic };
+) when { 
+    resource.isPublic
+};
 
 // Users can access owned documents if they are mfa-authenticated
 permit (
     principal,
     action == DocCloud::Action::&quot;View&quot;,
     resource
-)
-when { context.mfa_authed &amp;&amp; resource.owner == principal };
+) when {
+    context.mfa_authed &amp;&amp; 
+    resource.owner == principal 
+};
 
 // Users can only delete documents they own, and they both come from the company network and are mfa-authenticated
 permit (
     principal,
     action == DocCloud::Action::&quot;Delete&quot;,
     resource
-)
-when
-{
+) when {
     context.src_ip.isInRange(ip(&quot;1.1.1.0/24&quot;)) &amp;&amp;
     context.mfa_authed &amp;&amp;
     resource.owner == principal

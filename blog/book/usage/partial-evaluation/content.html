@@ -153,7 +153,7 @@
 <li>We expect the API to change somewhat as customers experiment with the feature. (This means we welcome feedback!)</li>
 </ol>
 <p>To enable partial evaluation, let’s start a new cargo project with the following <code>Cargo.toml</code></p>
-<pre><code>[package]
+<pre><code class="language-toml">[package]
 name = &quot;pe_example&quot;
 version = &quot;0.1.0&quot;
 edition = &quot;2021&quot;z
@@ -168,7 +168,7 @@ cedar-policy = { features = [&quot;partial-eval&quot;], git=&quot;https://github
 <p>Partial evaluation exposes one key new function on the <code>Authorizer</code> struct: <code>is_authorized_partial</code>. ( <a href="https://github.com/cedar-policy/cedar/blob/4c8c0c42b1c28b05d63bd9298ee0f7ec935abfec/cedar-policy/src/api.rs#L613">source</a>) This takes the same arguments as <code>is_authorized</code>, but has a different return type. Where <code>is_authorized</code> is guaranteed to always return either <code>Allow</code> or <code>Deny</code>, <code>is_authorized_partial</code> can return <code>Allow</code>, <code>Deny</code>, or a “residual”: the set of policies it was unable to evaluate. </p>
 <h2 id="a-quick-demo"><a class="header" href="#a-quick-demo">A quick demo</a></h2>
 <p>Let’s create a quick demo application that reads a policy set and context off of disk and attempts to authorize:</p>
-<pre><code>use cedar_policy::{PolicySet, Authorizer, Request, Context, Entities};
+<pre><pre class="playground"><code class="language-rust">use cedar_policy::{PolicySet, Authorizer, Request, Context, Entities};
 use std::io::prelude::*;
 
 fn main() {
@@ -187,8 +187,7 @@ fn main() {
                          None).unwrap();
     let answer = auth.is_authorized(&amp;r, &amp;policies, &amp;Entities::empty());
     println!(&quot;{:?}&quot;, answer);
-}
-</code></pre>
+}</code></pre></pre>
 <p>Let’s try it with a simple <code>policies.cedar</code> :</p>
 <pre><code>permit(principal,action,resource);
 </code></pre>
@@ -196,7 +195,7 @@ fn main() {
 <pre><code>{}
 </code></pre>
 <p>Running it, we see:</p>
-<pre><code>aeline@88665a58d3ad example % cargo r
+<pre><code class="language-shell">aeline@88665a58d3ad example % cargo r
    Compiling example v0.1.0 (/Users/aeline/src/example)
     Finished dev [unoptimized + debuginfo] target(s) in 0.54s
      Running `target/debug/example`
@@ -205,10 +204,10 @@ Response { decision: Allow,
            errors: {} } }
 </code></pre>
 <p>We get <code>Allow</code>, as expected, since the policy should match anything. Let’s try now by changing the line with <code>is_authorized</code> to use <code>is_authorized_partial</code> :</p>
-<pre><code>`    let answer = auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty());`
+<pre><code>    let answer = auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty());
 </code></pre>
 <p>Running it:</p>
-<pre><code>aeline@88665a58d3ad example % cargo r
+<pre><code class="language-shell">aeline@88665a58d3ad example % cargo r
    Compiling example v0.1.0 (/Users/aeline/src/example)
     Finished dev [unoptimized + debuginfo] target(s) in 0.56s
      Running `target/debug/example`
@@ -228,7 +227,7 @@ permit(principal == User::&quot;Alice&quot;, action, resource) when {
 };
 </code></pre>
 <p>and <code>context.json</code> :</p>
-<pre><code>{
+<pre><code class="language-json">{
     &quot;secure&quot; : true,
     &quot;location&quot; : { &quot;__extn&quot; : {
         &quot;fn&quot; : &quot;unknown&quot;,
@@ -238,7 +237,7 @@ permit(principal == User::&quot;Alice&quot;, action, resource) when {
 </code></pre>
 <p>Here, we set the value of the <code>location</code> field to a call to the <code>extension</code> function <code>unknown</code>. <code>unknown</code> values are “holes” that the partial evaluator cannot further reduce, and ultimately can lead to evaluation not producing a concrete answer.</p>
 <p>Let’s try evaluating our request with these new inputs:</p>
-<pre><code>aeline@88665a58d3ad example % cargo r
+<pre><code class="language-shell">aeline@88665a58d3ad example % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.15s
      Running `target/debug/example`
 Residual(ResidualResponse { 
@@ -255,7 +254,9 @@ Residual(ResidualResponse {
           },          ....
 </code></pre>
 <p>The debug printer displays loads of unecessary information in a a hard to read format. Let’s change our code to use the pretty printer, rather than the debug printer:</p>
-<pre><code>match auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty()) {
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>match auth.is_authorized_partial(&amp;r, &amp;policies, &amp;Entities::empty()) {
   PartialResponse::Concrete(r) =&gt; println!(&quot;{:?}&quot;, r),
   PartialResponse::Residual(r) =&gt; {
     println!(&quot;Residuals:&quot;);
@@ -264,7 +265,7 @@ Residual(ResidualResponse {
     }
   }
 }
-</code></pre>
+<span class="boring">}</span></code></pre></pre>
 <p>Re-running with this new printer gives us: </p>
 <pre><code>Residuals:
 permit(
@@ -277,7 +278,7 @@ permit(
 </code></pre>
 <p>We can see that the <code>forbid</code> policy has dropped entirely, as <code>context.secure</code> was fully known so we know the <code>forbid</code> policy doesn’t apply. On the <code>permit</code> policy, the head constraints have been simplified away (as <code>principal</code> was in fact <code>User::&quot;alice&quot;</code>). What remains is the constraint that <code>context.location</code> has to equal <code>&quot;Baltimore&quot;</code>, plus a residual <code>true &amp;&amp;</code> expression which is explained further in <a href="#caveats">Caveats</a>.</p>
 <p>If we change our <code>context.json</code> to set <code>context.secure</code> to be <code>false</code>, and re-run, we get:</p>
-<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+<pre><code class="language-shell">dev-dsk-aeline-1d-f2264f25 % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/pe_example`
 Response { decision: Deny, 
@@ -320,7 +321,7 @@ when
 <h3 id="what-can-alice-access"><a class="header" href="#what-can-alice-access">What can Alice access?</a></h3>
 <p>Concrete evaluation works for answering the question “Can Alice access Document ABC?”. But it doesn’t work well for answering the question “What documents can Alice access?”. Partial evaluation can help us answer this question by extracting the residual policies around an unknown <code>resource</code> that would evaluate to <code>Allow</code>, ignoring/folding away constraints that don’t matter or are common to all resources.</p>
 <p>We’ll change our simple <code>main</code> to the following:</p>
-<pre><code>fn main() {
+<pre><pre class="playground"><code class="language-rust">fn main() {
 
     let policies_src = std::fs::read_to_string(&quot;./policies.cedar&quot;).unwrap();
     let policies: PolicySet = policies_src.parse().unwrap();
@@ -347,11 +348,10 @@ when
             }
         }
     }
-}
-</code></pre>
+}</code></pre></pre>
 <p>This is mostly the same as last time, but with one important difference: We’ve dropped <code>.resource()</code> from our <code>RequestBuilder</code>. This sets <code>resource</code> to be an <code>unknown</code> value. </p>
 <p>Running this with the following <code>context.json</code>:</p>
-<pre><code>{
+<pre><code class="language-json">{
         &quot;mfa_authed&quot; : true,
         &quot;src_ip&quot; : { &quot;__extn&quot; : {
           &quot;fn&quot; : &quot;ip&quot;,
@@ -389,7 +389,7 @@ permit(
 <li>The constraint on <code>context.mfa_authed</code> is also gone since it is also <code>true</code>, always.</li>
 </ol>
 <p>Let’s try a few more scenarios. First we’ll change our <code>context.json</code> to: </p>
-<pre><code>{
+<pre><code class="language-json">{
         &quot;mfa_authed&quot; : false,
         &quot;src_ip&quot; : { &quot;__extn&quot; : {
           &quot;fn&quot; : &quot;ip&quot;,
@@ -412,7 +412,7 @@ permit(
 </code></pre>
 <p>Now we only get the one residual policy. No matter who owns a document, principals without MFA can view only public documents.</p>
 <p>Let’s now try changing our <code>Action</code> in the request (defined in <code>main.rs</code>) to <code>DocCloud::Action::&quot;Delete&quot;</code>: </p>
-<pre><code>dev-dsk-aeline-1d-f2264f25 % cargo r
+<pre><code class="language-shell">dev-dsk-aeline-1d-f2264f25 % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/pe_example`
 Response { decision: Deny, diagnostics: Diagnostics { reason: {}, errors: [] } }
@@ -421,13 +421,13 @@ Response { decision: Deny, diagnostics: Diagnostics { reason: {}, errors: [] } }
 <h3 id="what-to-do-with-the-residuals"><a class="header" href="#what-to-do-with-the-residuals">What to do with the residuals?</a></h3>
 <p>What now? Our original goal was to answer the question: Which resources does Alice have access to? We have shown the simplified policies that would grant access to Alice, but we are not all the way there. The residual policies are essentially constraints that represent Alice’s set of viewable documents. Any document that meets those constraints, i.e., one in which replacing <code>unknown(resource)</code> with the document entity ID causes a residual policy to evaluate to true, is included in the set. What you would like to do is use these constraints to efficiently fetch the data that satisfies them. Since Cedar doesn’t have any way of knowing how your specific application stores data, it can’t do this on its own. </p>
 <p>Fortunately, the Cedar language is pretty small, so it’s easy to convert it into another language that can be used to do that. Let’s imagine that for this sample application, our document metadata is stored in a relational database. We could translate our remaining Cedar residual into a SQL query we can submit to the database. If our metadata is in a table called <code>documents</code>, with the columns <code>id</code>, <code>is_public</code>, and <code>owner</code> , then we can translate our first residual into the following query:</p>
-<pre><code>SELECT id FROM documents WHERE 
+<pre><code class="language-sql">SELECT id FROM documents WHERE 
 (true AND true AND owner == 'DocCloud::User::&quot;Alice&quot;') 
 || 
 (true AND is_public);
 </code></pre>
 <p>And our second residual would become:</p>
-<pre><code>SELECT id FROM documents WHERE (true AND is_public);
+<pre><code class="language-sql">SELECT id FROM documents WHERE (true AND is_public);
 </code></pre>
 <p>These queries could then be submitted to a database in order to retrieve the set of documents that Alice is authorized to access. Importantly, partial evaluation has already evaluated all of the authorization info that the database is unable to answer, such as whether or not the request was authenticated with MFA.</p>
 <h2 id="caveats"><a class="header" href="#caveats">Caveats</a></h2>

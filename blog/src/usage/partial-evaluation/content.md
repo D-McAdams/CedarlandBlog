@@ -11,7 +11,7 @@ Partial evaluation is released as an “experimental” feature. This means two 
 
 To enable partial evaluation, let’s start a new cargo project with the following `Cargo.toml`
 
-```
+```toml
 [package]
 name = "pe_example"
 version = "0.1.0"
@@ -33,7 +33,7 @@ Partial evaluation exposes one key new function on the `Authorizer` struct: `is_
 
 Let’s create a quick demo application that reads a policy set and context off of disk and attempts to authorize:
 
-```
+```rust
 use cedar_policy::{PolicySet, Authorizer, Request, Context, Entities};
 use std::io::prelude::*;
 
@@ -70,7 +70,7 @@ and the empty context in `context.json`:
 
 Running it, we see:
 
-```
+```shell
 aeline@88665a58d3ad example % cargo r
    Compiling example v0.1.0 (/Users/aeline/src/example)
     Finished dev [unoptimized + debuginfo] target(s) in 0.54s
@@ -83,12 +83,12 @@ Response { decision: Allow,
 We get `Allow`, as expected, since the policy should match anything. Let’s try now by changing the line with `is_authorized` to use `is_authorized_partial` :
 
 ```
-`    let answer = auth.is_authorized_partial(&r, &policies, &Entities::empty());`
+    let answer = auth.is_authorized_partial(&r, &policies, &Entities::empty());
 ```
 
 Running it:
 
-```
+```shell
 aeline@88665a58d3ad example % cargo r
    Compiling example v0.1.0 (/Users/aeline/src/example)
     Finished dev [unoptimized + debuginfo] target(s) in 0.56s
@@ -116,7 +116,7 @@ permit(principal == User::"Alice", action, resource) when {
 
 and `context.json` :
 
-```
+```json
 {
     "secure" : true,
     "location" : { "__extn" : {
@@ -130,7 +130,7 @@ Here, we set the value of the `location` field to a call to the `extension` func
 
 Let’s try evaluating our request with these new inputs:
 
-```
+```shell
 aeline@88665a58d3ad example % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.15s
      Running `target/debug/example`
@@ -150,7 +150,7 @@ Residual(ResidualResponse {
 
 The debug printer displays loads of unecessary information in a a hard to read format. Let’s change our code to use the pretty printer, rather than the debug printer:
 
-```
+```rust
 match auth.is_authorized_partial(&r, &policies, &Entities::empty()) {
   PartialResponse::Concrete(r) => println!("{:?}", r),
   PartialResponse::Residual(r) => {
@@ -179,7 +179,7 @@ We can see that the `forbid` policy has dropped entirely, as `context.secure` wa
 
 If we change our `context.json` to set `context.secure` to be `false`, and re-run, we get:
 
-```
+```shell
 dev-dsk-aeline-1d-f2264f25 % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/pe_example`
@@ -232,7 +232,7 @@ Concrete evaluation works for answering the question “Can Alice access Documen
 
 We’ll change our simple `main` to the following:
 
-```
+```rust
 fn main() {
 
     let policies_src = std::fs::read_to_string("./policies.cedar").unwrap();
@@ -267,7 +267,7 @@ This is mostly the same as last time, but with one important difference: We’ve
 
 Running this with the following `context.json`:
 
-```
+```json
 {
         "mfa_authed" : true,
         "src_ip" : { "__extn" : {
@@ -311,7 +311,7 @@ Her are some interesting things about this residual set:
 
 Let’s try a few more scenarios. First we’ll change our `context.json` to: 
 
-```
+```json
 {
         "mfa_authed" : false,
         "src_ip" : { "__extn" : {
@@ -341,7 +341,7 @@ Now we only get the one residual policy. No matter who owns a document, principa
 
 Let’s now try changing our `Action` in the request (defined in `main.rs`) to `DocCloud::Action::"Delete"`: 
 
-```
+```shell
 dev-dsk-aeline-1d-f2264f25 % cargo r
     Finished dev [unoptimized + debuginfo] target(s) in 0.08s
      Running `target/debug/pe_example`
@@ -356,7 +356,7 @@ What now? Our original goal was to answer the question: Which resources does Ali
 
 Fortunately, the Cedar language is pretty small, so it’s easy to convert it into another language that can be used to do that. Let’s imagine that for this sample application, our document metadata is stored in a relational database. We could translate our remaining Cedar residual into a SQL query we can submit to the database. If our metadata is in a table called `documents`, with the columns `id`, `is_public`, and `owner` , then we can translate our first residual into the following query:
 
-```
+```sql
 SELECT id FROM documents WHERE 
 (true AND true AND owner == 'DocCloud::User::"Alice"') 
 || 
@@ -365,7 +365,7 @@ SELECT id FROM documents WHERE
 
 And our second residual would become:
 
-```
+```sql
 SELECT id FROM documents WHERE (true AND is_public);
 ```
 

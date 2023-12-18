@@ -23,7 +23,7 @@ edition = "2021"
 cedar-policy = { features = ["partial-eval"], version = 3.0 }
 ```
 
-This enables the `partial-eval` experimental feature, and also grabs the latest commit off of our dev branch instead of what’s published to `crates.io`. (We need this because one of the APIs used below hasn’t made it to stable release yet.)
+This enables the `partial-eval` experimental feature.
 
 ## Using partial evaluation
 

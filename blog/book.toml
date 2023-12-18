@@ -4,3 +4,6 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Cedarland Blog"
+
+[output.html]
+cname = "cedarland.blog"

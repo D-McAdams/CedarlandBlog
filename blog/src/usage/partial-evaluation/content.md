@@ -20,7 +20,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cedar-policy = { features = ["partial-eval"], git="https://github.com/cedar-policy/cedar", branch = "main" }
+cedar-policy = { features = ["partial-eval"], version = 3.0 }
 ```
 
 This enables the `partial-eval` experimental feature, and also grabs the latest commit off of our dev branch instead of what’s published to `crates.io`. (We need this because one of the APIs used below hasn’t made it to stable release yet.)

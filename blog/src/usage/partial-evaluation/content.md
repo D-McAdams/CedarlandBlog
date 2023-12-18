@@ -20,7 +20,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cedar-policy = { features = ["partial-eval"], version = 3.0 }
+cedar-policy = { features = ["partial-eval"], version = "3.0" }
 ```
 
 This enables the `partial-eval` experimental feature.

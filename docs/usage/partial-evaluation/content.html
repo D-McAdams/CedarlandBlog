@@ -161,9 +161,9 @@ edition = &quot;2021&quot;
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cedar-policy = { features = [&quot;partial-eval&quot;], git=&quot;https://github.com/cedar-policy/cedar&quot;, branch = &quot;main&quot; }
+cedar-policy = { features = [&quot;partial-eval&quot;], version = 3.0 }
 </code></pre>
-<p>This enables the <code>partial-eval</code> experimental feature, and also grabs the latest commit off of our dev branch instead of what’s published to <code>crates.io</code>. (We need this because one of the APIs used below hasn’t made it to stable release yet.)</p>
+<p>This enables the <code>partial-eval</code> experimental feature.</p>
 <h2 id="using-partial-evaluation"><a class="header" href="#using-partial-evaluation">Using partial evaluation</a></h2>
 <p>Partial evaluation exposes one key new function on the <code>Authorizer</code> struct: <code>is_authorized_partial</code>. ( <a href="https://github.com/cedar-policy/cedar/blob/4c8c0c42b1c28b05d63bd9298ee0f7ec935abfec/cedar-policy/src/api.rs#L613">source</a>) This takes the same arguments as <code>is_authorized</code>, but has a different return type. Where <code>is_authorized</code> is guaranteed to always return either <code>Allow</code> or <code>Deny</code>, <code>is_authorized_partial</code> can return <code>Allow</code>, <code>Deny</code>, or a “residual”: the set of policies it was unable to evaluate. </p>
 <h2 id="a-quick-demo"><a class="header" href="#a-quick-demo">A quick demo</a></h2>
